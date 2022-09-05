@@ -24,10 +24,26 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category= "Initial Data")
 	AMainGameMode* GameMode;
+
+#pragma region "Character In-Game States"
+
+	UPROPERTY(BlueprintReadWrite, VisibleDefaultsOnly, Category= "Character Component")
+	ELocomotionState LocomotionState;
+
+	UPROPERTY(BlueprintReadWrite, VisibleDefaultsOnly, Category= "Character Component")
+	EActionState ActionState = EActionState::ParkourMode;
+
+	UPROPERTY(BlueprintReadWrite, VisibleDefaultsOnly, Category= "Character Component")
+	EAbilityState AbilityState = EAbilityState::GroundState;
+
+#pragma endregion
 	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UPROPERTY(BlueprintReadWrite, Category= "Locomotion")
+	bool bCanAttack = true;
 
 public:
 	// Called every frame

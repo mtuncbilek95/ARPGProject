@@ -28,8 +28,4 @@ void AEnemyBase::Tick(float DeltaTime)
 
 void AEnemyBase::EnemyHurt_Implementation()
 {
-	if(Health > 0)
-	{
-		Health--;
-	}
 }
