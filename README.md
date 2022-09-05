@@ -7,10 +7,10 @@ It is a showcase project which shows our skills on Game Development.
 Current models and animations bought from UEMarketplace to start the project according to our perspective.
 
 Completed Works:
-- Player
-- Weapon
-- PlayerAnimInstance
-- FightAreaTriggerBox
+- Basic Player
+- Basic Weapon
+- Basic PlayerAnimInstance
+- Basic FightAreaTriggerBox
 - Basic UI
 - Basic Combat Design
 
