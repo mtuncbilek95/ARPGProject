@@ -2,7 +2,7 @@
 It is a showcase project which shows our skills on Game Development. We would like to consider this project as one level AA Game. Developed with Unreal Engine 5
 Current models and animations bought from UEMarketplace to start the project according to our perspective.
 
-Completed Works:
+## Completed Works:
 - Basic Player
 - Basic Weapon
 - Basic PlayerAnimInstance
@@ -10,12 +10,12 @@ Completed Works:
 - Basic UI
 - Basic Combat Design
 
-Currently working on:
+## Currently working on:
 - Behaviour Tree    (Metehan Tuncbilek)
 - New Level Design  (Oguzhan Sahin)
 
-Future Update:
-- Target Focus
+## Future Update:
+- Target Focus (Hard Lock & Soft Lock)
 - Refactor Codes
 - More VFX
 - Custom Animations
