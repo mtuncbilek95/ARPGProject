@@ -1,9 +1,5 @@
 # ARPG Project
-
-Developed with Unreal Engine 5
-
-It is a showcase project which shows our skills on Game Development. We would like to consider this project as one level AA Game.
-
+It is a showcase project which shows our skills on Game Development. We would like to consider this project as one level AA Game. Developed with Unreal Engine 5
 Current models and animations bought from UEMarketplace to start the project according to our perspective.
 
 Completed Works:
