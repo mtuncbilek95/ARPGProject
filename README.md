@@ -9,4 +9,11 @@ Completed Works:
 - FightAreaTriggerBox
 
 Currently working on:
-- Behaviour Tree
+- Behaviour Tree    (Metehan Tuncbilek)
+- New Level Design  (Oguzhan Sahin)
+
+Future Update:
+- Will add Target Focus
+- Refactor Codes
+- More VFX
+- Custom Animations
