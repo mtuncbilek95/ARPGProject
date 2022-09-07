@@ -51,9 +51,7 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent)
 	void EnemyHurt();
-
-	UPROPERTY(BlueprintReadOnly, Category="Annen")
-	int Health = 10;
+	
 private:
 
 };

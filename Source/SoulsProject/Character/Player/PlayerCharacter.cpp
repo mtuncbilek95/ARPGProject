@@ -92,6 +92,11 @@ void APlayerCharacter::Walk(EExecuteBranch Branches)
 	}
 }
 
+void APlayerCharacter::ChangeWeaponCollider_Implementation(bool bColliderActive)
+{
+	IWeaponCollider::ChangeWeaponCollider_Implementation(bColliderActive);
+}
+
 void APlayerCharacter::RotateCharacter(float axisTurn, float axisLook)
 {
 	AddControllerYawInput(axisTurn);

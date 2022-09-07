@@ -41,6 +41,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category= "Data")
 	TSubclassOf<APlayerCharacter> CharacterType;
 	void CheckStart();
+	
 private:
 	int EnemyCount;
 };

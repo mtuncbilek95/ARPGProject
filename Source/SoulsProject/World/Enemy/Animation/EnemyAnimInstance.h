@@ -4,30 +4,36 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
+
+//	Animation Structures
 #include "SoulsProject/Character/Animation/Data/AnimData.h"
+
+//	Interfaces which has been created to use on Combat Mechanics
 #include "SoulsProject/Character/Interfaces/ComboSection.h"
 #include "SoulsProject/Character/Interfaces/MontagePlayer.h"
+
+//	Movement States that helps the animation work efficiently
 #include "SoulsProject/Character/States/ActionState.h"
 #include "SoulsProject/Character/States/AttackState.h"
 #include "SoulsProject/Character/States/LocomotionState.h"
+
+//	Enemy base class
 #include "SoulsProject/World/Enemy/Base/EnemyBase.h"
+
 #include "EnemyAnimInstance.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class SOULSPROJECT_API UEnemyAnimInstance : public UAnimInstance, public IMontagePlayer, public IComboSection
 {
 	GENERATED_BODY()
+	
 public:
 	UFUNCTION(BlueprintCallable, Category= "Locomotion")
 	void SetEssentialData();
 	UFUNCTION(BlueprintCallable, Category= "Locomotion")
 	void DetermineLocomotion();
-
-	UPROPERTY(BlueprintReadOnly)
-	FVector Velo;
+	
 protected:
 	virtual void NativeInitializeAnimation() override;
 
@@ -51,6 +57,8 @@ protected:
 
 #pragma endregion
 
+#pragma region "Movement States"
+
 	UPROPERTY(BlueprintReadOnly, Category= "Locomotion")
 	ELocomotionState LocomotionState;
 
@@ -59,9 +67,8 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category= "Locomotion")
 	EAbilityState AbilityState;
-
-	UPROPERTY(BlueprintReadOnly, Category= "Locomotion")
-	bool bAlreadyMoving;
+	
+#pragma endregion
 
 #pragma region "Combo Section Data"
 
@@ -78,6 +85,9 @@ protected:
 	FName DefaultHeavyAttackSection = "Heavy1";
 
 #pragma endregion
+
+	UPROPERTY(BlueprintReadOnly, Category= "Locomotion")
+	bool bAlreadyMoving;
 
 private:
 	FAnimationData IntegratedCharacterData;

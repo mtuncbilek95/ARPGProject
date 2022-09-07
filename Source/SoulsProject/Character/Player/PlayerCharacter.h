@@ -3,17 +3,27 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
+//	Basic Player Components
 #include "Camera/CameraComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/SpringArmComponent.h"
+
+//	Interfaces
+#include "SoulsProject/Character/Interfaces/WeaponCollider.h"
+
+//	Enum classes for Execution Branch creation
 #include "SoulsProject/Character/States/ExecuteBranch.h"
+
+//	Movement States Enum Classes
 #include "SoulsProject/Character/States/LocomotionState.h"
 #include "SoulsProject/Character/States/ActionState.h"
 #include "SoulsProject/Character/States/AbilityState.h"
+
 #include "PlayerCharacter.generated.h"
 
 UCLASS()
-class SOULSPROJECT_API APlayerCharacter : public ACharacter
+class SOULSPROJECT_API APlayerCharacter : public ACharacter, public IWeaponCollider
 {
 	GENERATED_BODY()
 
@@ -76,6 +86,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Character Movement", Meta = (ExpandEnumAsExecs = "Branches"))
 	void Walk(EExecuteBranch Branches);
+
+#pragma endregion
+
+#pragma region "Interface Functions"
+
+virtual void ChangeWeaponCollider_Implementation(bool bColliderActive) override;
 
 #pragma endregion
 	

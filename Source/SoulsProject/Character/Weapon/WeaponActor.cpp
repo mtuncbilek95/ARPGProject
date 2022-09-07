@@ -37,7 +37,7 @@ void AWeaponActor::CombatOverlapping(AActor* OverlapActor)
 	AEnemyBase* Enemy = Cast<AEnemyBase>(OverlapActor);
 	if(Enemy)
 	{
-		Enemy->EnemyHurt();
+		GEngine->AddOnScreenDebugMessage(0, 5.0f, FColor::Cyan, "Enemy got hurt");
 	}
 }
 

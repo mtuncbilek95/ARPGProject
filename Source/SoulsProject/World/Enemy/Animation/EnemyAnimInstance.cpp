@@ -52,7 +52,6 @@ void UEnemyAnimInstance::SetEssentialData()
 		EnemyRef->LocomotionState = LocomotionState;
 		ActionState = EnemyRef->ActionState;
 		AbilityState = EnemyRef->AbilityState;
-		Velo = IntegratedCharacterData.currentVelocity;
 	}
 
 }
