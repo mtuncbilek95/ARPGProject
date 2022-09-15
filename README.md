@@ -31,3 +31,6 @@ Target Construction of the Project:
 - The other one will be one level game mode which will have scripted in-game cutscenes such as flying spaceships, talking characters etc.
 - One level game mode will have both stealth and combat actions. We will try to work to give the player a choice.
 - Our approach on combat design was inspired from Devil May Cry 5 but we will try to add more features from Batman/Spider-Man and Souls series.
+
+## Update(2022-09-14)
+https://www.youtube.com/watch?v=yZGj7CAlSrY
