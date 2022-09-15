@@ -25,4 +25,7 @@ class SOULSPROJECT_API IMontagePlayer
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void PlayMontage(EAttackState playState);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void AttackSetter(bool bCanAttack);
 };

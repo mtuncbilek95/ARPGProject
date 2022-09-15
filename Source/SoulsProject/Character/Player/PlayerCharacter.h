@@ -19,8 +19,10 @@
 #include "SoulsProject/Character/States/LocomotionState.h"
 #include "SoulsProject/Character/States/ActionState.h"
 #include "SoulsProject/Character/States/AbilityState.h"
-
+#include "SoulsProject/Character/Weapon/WeaponActor.h"
 #include "PlayerCharacter.generated.h"
+
+class AEnemyBase;
 
 UCLASS()
 class SOULSPROJECT_API APlayerCharacter : public ACharacter, public IWeaponCollider
@@ -33,9 +35,9 @@ public:
 
 #pragma region "Main Component"
 
-	UPROPERTY(EditDefaultsOnly, Category= "Character Component")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category= "Character Component")
 	USpringArmComponent* SpringArm;
-	UPROPERTY(EditDefaultsOnly, Category= "Character Component")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category= "Character Component")
 	UCameraComponent* Camera;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Character Component")
 	UChildActorComponent* Weapon;
@@ -58,7 +60,18 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="Focus Target")
+	void FocusOnTarget();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category="Focus Target", meta=(ExpandEnumAsExecs = "ExecuteBranch"))
+	void CastTrace(EEnterBranch ExecuteBranch);
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Focus Target")
+	TEnumAsByte<EObjectTypeQuery> QueryType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Weapon")
+	AEnemyBase* EnemyRef;
+	
 	UPROPERTY(EditDefaultsOnly, Category= "Character Component")
 	float interpSpeed;
 
@@ -72,7 +85,7 @@ public:
 #pragma region "Axis Functions"
 	
 	UFUNCTION(BlueprintCallable, Category= "Character Movement")
-	void MoveCharacter(float forwardAxis, float rightAxis);
+	void MoveCharacter(float forwardInput, float rightInput);
 
 	UFUNCTION(BlueprintCallable, Category = "Character Movement")
 	void RotateCharacter(float axisTurn, float axisLook);
@@ -97,7 +110,15 @@ virtual void ChangeWeaponCollider_Implementation(bool bColliderActive) override;
 	
 	void SetActionState(EActionState currentState);
 
-private:
+	void SetAttack(bool value);
+
+	int forwardAxis;
+	int rightAxis;
+
+	UPROPERTY(BlueprintReadWrite)
+	FRotator inputForcedRotation;
 	
+private:
 	void CalculateCameraLength(float speedValue);
+	void CalculateForcedDirection(float forwardValue, float rightValue);
 };

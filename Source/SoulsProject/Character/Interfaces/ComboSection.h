@@ -24,4 +24,10 @@ public:
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void NextCombo(FName LightAttack, FName HeavyAttack);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void GetCombatRotation();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void SetCombatRotation();
 };

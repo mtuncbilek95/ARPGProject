@@ -17,3 +17,10 @@ enum class EOverlap : uint8
 	BeginOverlap	UMETA(DisplayName = "Turn"),
 	EndOverlap		UMETA(DisplayName = "LookUp")
 };
+
+UENUM(BlueprintType)
+enum class EEnterBranch : uint8
+{
+	Enter		UMETA(DisplayName = "Enter"),
+	Exit		UMETA(DisplayName = "Exit")
+};

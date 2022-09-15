@@ -62,7 +62,7 @@ void UEnemyAnimInstance::DetermineLocomotion()
 	{
 		LocomotionState = ELocomotionState::Run;
 	}
-	else if (IntegratedCharacterData.currentVelocity.Length() > 120 && IntegratedCharacterData.currentVelocity.Length() < 400)
+	else if (IntegratedCharacterData.currentVelocity.Length() > 50 && IntegratedCharacterData.currentVelocity.Length() < 400)
 	{
 		LocomotionState = ELocomotionState::Walk;
 	}

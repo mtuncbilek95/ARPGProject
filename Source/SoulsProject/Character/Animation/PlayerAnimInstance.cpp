@@ -11,7 +11,7 @@ void UPlayerAnimInstance::NativeInitializeAnimation()
 	Super::NativeInitializeAnimation();
 
 	CharacterRef = Cast<APlayerCharacter>(TryGetPawnOwner());
-	if(CharacterRef)
+	if (CharacterRef)
 	{
 		MeshRef = CharacterRef->GetMesh();
 	}
@@ -20,6 +20,7 @@ void UPlayerAnimInstance::NativeInitializeAnimation()
 void UPlayerAnimInstance::PlayMontage_Implementation(EAttackState playState)
 {
 	IMontagePlayer::PlayMontage_Implementation(playState);
+	AttackSetter(false);
 }
 
 void UPlayerAnimInstance::DefaulAttack_Implementation()
@@ -32,9 +33,31 @@ void UPlayerAnimInstance::DefaulAttack_Implementation()
 void UPlayerAnimInstance::NextCombo_Implementation(FName LightAttack, FName HeavyAttack)
 {
 	IComboSection::NextCombo_Implementation(LightAttack, HeavyAttack);
-	
+
 	LightAttackSection = LightAttack;
 	HeavyAttackSection = HeavyAttack;
+}
+
+void UPlayerAnimInstance::AttackSetter_Implementation(bool bCanAttack)
+{
+	IMontagePlayer::AttackSetter_Implementation(bCanAttack);
+	CharacterRef->SetAttack(bCanAttack);
+}
+
+void UPlayerAnimInstance::GetCombatRotation_Implementation()
+{
+	IComboSection::GetCombatRotation_Implementation();
+
+	combatRotation = CharacterRef->inputForcedRotation;
+}
+
+void UPlayerAnimInstance::SetCombatRotation_Implementation()
+{
+	IComboSection::SetCombatRotation_Implementation();
+
+	CharacterRef->SetActorRotation(
+		UKismetMathLibrary::RInterpTo(CharacterRef->GetActorRotation(), combatRotation, GetWorld()->GetDeltaSeconds(),
+		                              25));
 }
 
 void UPlayerAnimInstance::SetEssentialData()
@@ -47,7 +70,10 @@ void UPlayerAnimInstance::SetEssentialData()
 		IntegratedCharacterData.currentMaxSpeed = CharacterRef->GetCharacterMovement()->GetMaxSpeed();
 		IntegratedCharacterData.currentSpeed = IntegratedCharacterData.currentVelocity.Size();
 		IntegratedCharacterData.fCurrentAcceleration = IntegratedCharacterData.vCurrentAcceleration.Size();
-		
+
+		fVec = CharacterRef->forwardAxis;
+		rVec = CharacterRef->rightAxis;
+
 		CharacterRef->LocomotionState = LocomotionState;
 		ActionState = CharacterRef->ActionState;
 		AbilityState = CharacterRef->AbilityState;

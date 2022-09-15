@@ -3,8 +3,10 @@
 
 #include "PlayerCharacter.h"
 
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 
 // Sets default values
@@ -31,7 +33,7 @@ APlayerCharacter::APlayerCharacter()
 	bUseControllerRotationYaw = false;
 
 	Weapon = CreateDefaultSubobject<UChildActorComponent>(TEXT("Weapon"));
-	Weapon->SetupAttachment(GetMesh(),"hand_rSocket");
+	Weapon->SetupAttachment(GetMesh(), "hand_rSocket");
 }
 
 // Called when the game starts or when spawned
@@ -40,19 +42,31 @@ void APlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 }
 
+void APlayerCharacter::CastTrace_Implementation(EEnterBranch ExecuteBranch)
+{
+}
+
 // Called every frame
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
 
-void APlayerCharacter::MoveCharacter(float forwardAxis, float rightAxis)
+void APlayerCharacter::MoveCharacter(float forwardInput, float rightInput)
 {
-	FVector forwardVector = UKismetMathLibrary::GetForwardVector(FRotator(0,GetControlRotation().Yaw,0));
-	FVector rightVector = UKismetMathLibrary::GetRightVector(FRotator(0,GetControlRotation().Yaw,0));
-	AddMovementInput(forwardVector, forwardAxis);
-	AddMovementInput(rightVector, rightAxis);
+	FVector forwardVector = UKismetMathLibrary::GetForwardVector(FRotator(0, GetControlRotation().Yaw, 0));
+	FVector rightVector = UKismetMathLibrary::GetRightVector(FRotator(0, GetControlRotation().Yaw, 0));
+	AddMovementInput(forwardVector, forwardInput);
+	AddMovementInput(rightVector, rightInput);
 
+	if((FMath::Abs(forwardInput) + FMath::Abs(rightInput)) > 0)
+	{
+		CalculateForcedDirection(forwardInput, rightInput);
+	}
+	else
+	{
+		inputForcedRotation = GetActorRotation();
+	}
 	CalculateCameraLength(interpSpeed);
 }
 
@@ -121,10 +135,15 @@ void APlayerCharacter::SetActionState(EActionState currentState)
 	}
 }
 
+void APlayerCharacter::SetAttack(bool value)
+{
+	bCanAttack = value;
+}
+
 void APlayerCharacter::CalculateCameraLength(float speedValue)
 {
 	float Target;
-	if(ActionState == EActionState::ParkourMode)
+	if (ActionState == EActionState::ParkourMode)
 	{
 		switch (LocomotionState)
 		{
@@ -148,9 +167,22 @@ void APlayerCharacter::CalculateCameraLength(float speedValue)
 	else
 	{
 		Target = 450;
-	}	
+	}
 
 	SpringArm->TargetArmLength = UKismetMathLibrary::FInterpTo(SpringArm->TargetArmLength, Target,
-																   GetWorld()->GetDeltaSeconds(), speedValue);
-	
+	                                                           GetWorld()->GetDeltaSeconds(), speedValue);
+}
+
+void APlayerCharacter::CalculateForcedDirection(float forwardValue, float rightValue)
+{
+	FRotator forcedRotation = UKismetMathLibrary::MakeRotFromX(FVector(forwardValue, -rightValue, 0));
+	FRotator deltaRotation = FRotator(0, SpringArm->GetTargetRotation().Yaw - forcedRotation.Yaw, 0);
+	FVector originVector = FVector(GetCapsuleComponent()->GetForwardVector().X,
+	                               GetCapsuleComponent()->GetForwardVector().Y, 0);
+	inputForcedRotation = UKismetMathLibrary::FindLookAtRotation(originVector,
+	                                                             UKismetMathLibrary::GetForwardVector(deltaRotation));
+}
+
+void APlayerCharacter::FocusOnTarget_Implementation()
+{
 }

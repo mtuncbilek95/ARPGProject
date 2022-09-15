@@ -28,14 +28,20 @@ protected:
 	virtual void NativeInitializeAnimation() override;
 
 #pragma region "Interface Functions"
-	
+
 	virtual void PlayMontage_Implementation(EAttackState playState) override;
-	
+
 	virtual void DefaulAttack_Implementation() override;
-	
+
 	virtual void NextCombo_Implementation(FName LightAttack, FName HeavyAttack) override;
 
-#pragma endregion 
+	virtual void AttackSetter_Implementation(bool bCanAttack) override;
+
+	virtual void GetCombatRotation_Implementation() override;
+	
+	virtual void SetCombatRotation_Implementation() override;
+
+#pragma endregion
 
 #pragma region "Cast Data"
 
@@ -79,4 +85,8 @@ private:
 	FAnimationData IntegratedCharacterData;
 
 	bool CalculateThreshold(float currentSpeed, float maxSpeed, float maxAcceleration);
+
+	FRotator combatRotation;
+	int fVec;
+	int rVec;
 };
