@@ -77,6 +77,7 @@ void UPlayerAnimInstance::SetEssentialData()
 		CharacterRef->LocomotionState = LocomotionState;
 		ActionState = CharacterRef->ActionState;
 		AbilityState = CharacterRef->AbilityState;
+		bAlreadyMoving = IntegratedCharacterData.currentSpeed > 50;
 	}
 }
 
@@ -92,21 +93,27 @@ void UPlayerAnimInstance::DetermineLocomotion()
 	}
 	else
 	{
-		if (CalculateThreshold(20, 560, 0.5f))
+		if (CalculateThreshold(0, 560, 0.5f))
 		{
 			LocomotionState = ELocomotionState::Sprint;
 		}
-		else if (CalculateThreshold(20, 400, 0.5f))
-		{
-			LocomotionState = ELocomotionState::Run;
-		}
-		else if (CalculateThreshold(0, 100, 0.01f))
-		{
-			LocomotionState = ELocomotionState::Walk;
-		}
 		else
 		{
-			LocomotionState = ELocomotionState::Idle;
+			if (CalculateThreshold(0, 400, 0.5f))
+			{
+				LocomotionState = ELocomotionState::Run;
+			}
+			else
+			{
+				if (CalculateThreshold(0, 100, 0.01f))
+				{
+					LocomotionState = ELocomotionState::Walk;
+				}
+				else
+				{
+					LocomotionState = ELocomotionState::Idle;
+				}
+			}
 		}
 	}
 }
