@@ -12,10 +12,10 @@ Current models and animations bought from UEMarketplace to start the project acc
 - Enemy Locator Vision
 
 ## Currently working on:
-- Behaviour Tree    (Metehan Tuncbilek)
-- New Level Design  (Oguzhan Sahin)
+- Target Focus
 
 ## Future Update:
+- Behaviour Tree 
 - Target Focus (Hard Lock & Soft Lock)
 - Refactor Codes
 - More VFX
