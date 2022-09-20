@@ -9,7 +9,7 @@ Current models and animations bought from UEMarketplace to start the project acc
 - Basic FightAreaTriggerBox
 - Basic UI
 - Basic Combat Design
-- X-Ray Vision
+- Enemy Locator Vision
 
 ## Currently working on:
 - Behaviour Tree    (Metehan Tuncbilek)
