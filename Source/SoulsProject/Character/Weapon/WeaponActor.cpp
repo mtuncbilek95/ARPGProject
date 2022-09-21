@@ -24,6 +24,8 @@ AWeaponActor::AWeaponActor()
 	WeaponMesh->SetRelativeRotation(FRotator(0, 0, 0));
 	WeaponCollision->SetBoxExtent(FVector(2, 1, 43));
 	WeaponCollision->SetRelativeLocation(FVector(0, 0, 60));
+
+	WeaponCollision->SetCollisionProfileName("NoCollision");
 }
 
 // Called when the game starts or when spawned
@@ -46,3 +48,16 @@ void AWeaponActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
+
+void AWeaponActor::ChangeCollision(bool value)
+{
+	if(value)
+	{
+		WeaponCollision->SetCollisionProfileName("Weapon");
+	}
+	else
+	{
+		WeaponCollision->SetCollisionProfileName("NoCollision");
+	}
+}
+

@@ -24,7 +24,6 @@ void AMainGameMode::Tick(float DeltaSeconds)
 
 void AMainGameMode::CheckActionState()
 {
-	UE_LOG(LogTemp, Warning, TEXT("%zu"), enemyCount)
 	if(enemyCount != 0)
 	{
 		CharacterReference->SetActionState(EActionState::FightMode);

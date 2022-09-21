@@ -39,10 +39,6 @@ protected:
 
 	virtual void AttackSetter_Implementation(bool bCanAttack) override;
 
-	virtual void GetCombatRotation_Implementation() override;
-	
-	virtual void SetCombatRotation_Implementation() override;
-
 #pragma endregion
 
 #pragma region "Cast Data"
@@ -87,8 +83,4 @@ private:
 	FAnimationData IntegratedCharacterData;
 
 	bool CalculateThreshold(float currentSpeed, float maxSpeed, float maxAcceleration);
-
-	FRotator combatRotation;
-	int fVec;
-	int rVec;
 };

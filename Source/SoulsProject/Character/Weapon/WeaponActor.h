@@ -19,10 +19,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category= "Scene Component")
 	USceneComponent* SceneComponent;
-	
 	UPROPERTY(EditDefaultsOnly, Category= "Actor Component")
 	UStaticMeshComponent* WeaponMesh;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Actor Component")
 	UBoxComponent* WeaponCollision;
 	
@@ -30,11 +28,12 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UFUNCTION(BlueprintCallable, Category= "Combat Overlaping")
-	void CombatOverlapping(AActor* OverlapActor);
-
-	bool bDoneOnce;
-public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	
+public:
+	UFUNCTION(BlueprintCallable, Category= "Custom Component")
+	void ChangeCollision(bool value);
+	UFUNCTION(BlueprintCallable, Category= "Custom Component")
+	void CombatOverlapping(AActor* OverlapActor);
 };
