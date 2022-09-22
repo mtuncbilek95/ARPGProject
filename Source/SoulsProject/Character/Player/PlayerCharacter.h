@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿//	2022 Metehan Tuncbilek TR, All rights reserved.
 
 #pragma once
 
@@ -10,16 +10,13 @@
 #include "GameFramework/SpringArmComponent.h"
 
 //	Enum classes for Execution Branch creation
-#include "SoulsProject/Character/States/ExecuteBranch.h"
+#include "SoulsProject/Character/States/ExecutionBranches.h"
 
 //	Movement States Enum Classes
-#include "SoulsProject/Character/States/LocomotionState.h"
-#include "SoulsProject/Character/States/ActionState.h"
-#include "SoulsProject/Character/States/AbilityState.h"
+#include "SoulsProject/Character/States/MotionStates.h"
+
 #include "SoulsProject/Character/Weapon/WeaponActor.h"
 #include "PlayerCharacter.generated.h"
-
-//	class AEnemyBase;
 
 UCLASS()
 class SOULSPROJECT_API APlayerCharacter : public ACharacter

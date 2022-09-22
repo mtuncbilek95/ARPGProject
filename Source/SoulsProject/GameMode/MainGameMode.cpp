@@ -1,11 +1,10 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+//	2022 Metehan Tuncbilek TR, All rights reserved.
 
 
 #include "MainGameMode.h"
 
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetStringLibrary.h"
-#include "SoulsProject/Character/States/ActionState.h"
 
 AMainGameMode::AMainGameMode()
 {

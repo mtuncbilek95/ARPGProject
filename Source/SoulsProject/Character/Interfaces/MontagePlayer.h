@@ -1,9 +1,9 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿//	2022 Metehan Tuncbilek TR, All rights reserved.
 
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SoulsProject/Character/States/AttackState.h"
+#include "SoulsProject/Character/States/MotionStates.h"
 #include "UObject/Interface.h"
 #include "MontagePlayer.generated.h"
 

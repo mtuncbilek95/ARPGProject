@@ -1,9 +1,10 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿//	2022 Metehan Tuncbilek TR, All rights reserved.
 
 #pragma once
 
 #include "CoreMinimal.h"
 
+//	This branch is used for handling action binding events
 UENUM(BlueprintType)
 enum class EExecuteBranch : uint8
 {
@@ -11,6 +12,7 @@ enum class EExecuteBranch : uint8
 	Released	UMETA(DisplayName = "Released")
 };
 
+//	This branch is used for Collision overlap events
 UENUM(BlueprintType)
 enum class EOverlap : uint8
 {
@@ -18,9 +20,10 @@ enum class EOverlap : uint8
 	EndOverlap		UMETA(DisplayName = "LookUp")
 };
 
+//	Custom branch idea.
 UENUM(BlueprintType)
 enum class EEnterBranch : uint8
 {
 	Enter		UMETA(DisplayName = "Enter"),
-	Exit		UMETA(DisplayName = "Exit")
+	Reset		UMETA(DisplayName = "Exit")
 };

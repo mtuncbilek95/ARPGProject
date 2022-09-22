@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+//	2022 Metehan Tuncbilek TR, All rights reserved.
 
 #pragma once
 

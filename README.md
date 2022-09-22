@@ -1,5 +1,5 @@
 # ARPG Project
-It is a showcase project which shows our skills on Game Development. We would like to consider this project as one level AA Game. Developed with Unreal Engine 5
+It is a showcase project which shows our skills on Game Development. We would like to consider this project as one level AA Game Project. Developed with Unreal Engine 5
 Current models and animations bought from UEMarketplace to start the project according to our perspective.
 
 ## Completed Works (Last Update 09.17.2022):
@@ -9,12 +9,14 @@ Current models and animations bought from UEMarketplace to start the project acc
 - Basic FightAreaTriggerBox
 - Basic UI
 - Basic Combat Design
-- Enemy Locator Vision
+- Enemy Locator Vision (Material)
 
 ## Currently working on:
-- Target Focus
+- Target Focus Soft Lock
+- Cleaning the code structure.
 
 ## Future Update:
+
 - Behaviour Tree 
 - Target Focus (Hard Lock & Soft Lock)
 - Refactor Codes
@@ -22,6 +24,7 @@ Current models and animations bought from UEMarketplace to start the project acc
 - Custom Animations
 - Main Menu
 - Save Game
+- Weapon Mechanics
 - We will add more...
 
 We are using Blender for modeling our custom characters, Autodesk Maya for custom animations and Adobe Illustrator for UI elements.

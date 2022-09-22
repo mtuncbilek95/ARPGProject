@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+//	2022 Metehan Tuncbilek TR, All rights reserved.
 
 #pragma once
 
@@ -13,9 +13,7 @@
 #include "SoulsProject/Character/Interfaces/MontagePlayer.h"
 
 //	Movement States that helps the animation work efficiently
-#include "SoulsProject/Character/States/ActionState.h"
-#include "SoulsProject/Character/States/AttackState.h"
-#include "SoulsProject/Character/States/LocomotionState.h"
+#include "SoulsProject/Character/States/MotionStates.h"
 
 //	Enemy base class
 #include "SoulsProject/World/Enemy/Base/EnemyBase.h"
