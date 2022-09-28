@@ -39,7 +39,6 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -50,26 +49,45 @@ protected:
 public:
 	UFUNCTION(BlueprintCallable, Category = "Character Movement", Meta = (ExpandEnumAsExecs = "Branches"))
 	void Sprint(EExecuteBranch Branches);
-
 	UFUNCTION(BlueprintCallable, Category = "Character Movement", Meta = (ExpandEnumAsExecs = "Branches"))
 	void Walk(EExecuteBranch Branches);
-
 	UFUNCTION(BlueprintCallable, Category= "Character Movement")
 	void MoveCharacter(float forwardInput, float rightInput);
-
 	UFUNCTION(BlueprintCallable, Category = "Character Movement")
 	void RotateCharacter(float axisTurn, float axisLook);
 
-	UFUNCTION(BlueprintCallable, Category = "Character Movement")
-	void CalculateDirectionVector(FVector rotationVector);
-	
 private:
 	void CalculateCameraLength(float speedValue);
 
 #pragma endregion
 
+#pragma region "Enemy Lock System"
+
+public:
+	UFUNCTION(BlueprintCallable, Category = "Character Movement")
+	FVector CalculateDirectionVector();
+	UFUNCTION(BlueprintCallable, Category= "Ray-casting Data")
+	void HardLockTrace();
+	UFUNCTION(BlueprintCallable, Category= "Ray-casting Data")
+	void SoftLockTrace();
+	UFUNCTION(BlueprintCallable, Category= "Ray-casting Data")
+	void HardLock();
+	UFUNCTION(BlueprintCallable, Category = "ray-casting Data")
+	void LockOnTarget();
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category= "Ray-casting Data")
+	FHitResult GetHitResult() { return LockHitResult; }
+
+private:
+	AActor* hitActor;
+	FTimerHandle LockTimerHandle;
+	FHitResult LockHitResult;
+	float sphereLength = 1000;
+	float sphereRadius = 100;
+
+#pragma endregion
+
 #pragma region "Character In-Game States"
-	
+
 public:
 	FORCEINLINE ELocomotionState GetLocomotionState() { return LocomotionState; }
 	FORCEINLINE void SetLocomotionState(ELocomotionState stateValue) { LocomotionState = stateValue; }
@@ -80,6 +98,7 @@ public:
 
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category= "Custom Functions")
 	FORCEINLINE bool GetCanAttack() { return bCanAttack; }
+
 	UFUNCTION(BlueprintCallable, Category= "Custom Functions")
 	FORCEINLINE void SetCanAttack(bool attackValue) { bCanAttack = attackValue; }
 
@@ -91,12 +110,11 @@ private:
 
 #pragma endregion
 
-#pragma region "Custom Components"
-	
+#pragma region "Custom Components Property"
+
 public:
 	UFUNCTION(BlueprintCallable, Category= "Custom Components")
 	void SetWeaponActor(AWeaponActor* actor) { WeaponActor = actor; }
-
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category= "Custom Components")
 	AWeaponActor* GetWeaponActor() { return WeaponActor; }
 

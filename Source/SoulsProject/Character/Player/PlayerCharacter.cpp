@@ -94,19 +94,71 @@ void APlayerCharacter::MoveCharacter(float forwardInput, float rightInput)
 
 void APlayerCharacter::RotateCharacter(float axisTurn, float axisLook)
 {
-	AddControllerYawInput(axisTurn);
-	AddControllerPitchInput(axisLook);
+	if (!hitActor)
+	{
+		AddControllerYawInput(axisTurn);
+		AddControllerPitchInput(axisLook);
+	}
 }
 
-void APlayerCharacter::CalculateDirectionVector(FVector rotationVector)
+FVector APlayerCharacter::CalculateDirectionVector()
 {
-	if(FMath::Abs(GetInputAxisValue("FB")) + FMath::Abs(GetInputAxisValue("LR")) > 0)
+	if (FMath::Abs(GetInputAxisValue("FB")) + FMath::Abs(GetInputAxisValue("LR")) > 0)
 	{
 		FRotator inputRotation = UKismetMathLibrary::MakeRotFromX(FVector(GetInputAxisValue("FB"), -GetInputAxisValue("LR"), 0));
-		FVector inputDirectionVector = UKismetMathLibrary::Conv_RotatorToVector(FRotator(0,SpringArm->GetTargetRotation().Yaw - inputRotation.Yaw,0));
+		return UKismetMathLibrary::Conv_RotatorToVector(FRotator(0, SpringArm->GetTargetRotation().Yaw - inputRotation.Yaw, 0));
 	}
 	else
 	{
-		FVector cameraDirectionVector = UKismetMathLibrary::Conv_RotatorToVector(FRotator(0,SpringArm->GetTargetRotation().Yaw,0));
+		return UKismetMathLibrary::Conv_RotatorToVector(FRotator(0, SpringArm->GetTargetRotation().Yaw, 0));
+	}
+}
+
+void APlayerCharacter::HardLockTrace()
+{
+	FVector endPoint = sphereLength * SpringArm->GetTargetRotation().Vector() + GetActorLocation();
+	TArray<TEnumAsByte<EObjectTypeQuery>> Types;
+	TArray<AActor*> IgnoreActors;
+	Types.Add(EObjectTypeQuery::ObjectTypeQuery3);
+	IgnoreActors.Add(this);
+	EDrawDebugTrace::Type traceType = EDrawDebugTrace::ForOneFrame;
+	UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), GetActorLocation(), endPoint, sphereRadius, Types, false, IgnoreActors, traceType, LockHitResult, true);
+}
+
+void APlayerCharacter::SoftLockTrace()
+{
+	FVector endPoint = sphereLength * CalculateDirectionVector() + GetActorLocation();
+	TArray<TEnumAsByte<EObjectTypeQuery>> Types;
+	TArray<AActor*> IgnoreActors;
+	Types.Add(EObjectTypeQuery::ObjectTypeQuery3);
+	IgnoreActors.Add(this);
+	EDrawDebugTrace::Type traceType = EDrawDebugTrace::ForOneFrame;
+	UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), GetActorLocation(), endPoint, 100, Types, false, IgnoreActors, traceType, LockHitResult, true);
+	UKismetSystemLibrary::DrawDebugArrow(GetWorld(), GetActorLocation(), endPoint, 10, FColor::Red,0,3);
+}
+
+void APlayerCharacter::HardLock()
+{
+	if (hitActor)
+	{
+		FRotator targetRotation = UKismetMathLibrary::FindLookAtRotation( GetActorLocation(), FVector(hitActor->GetActorLocation().X,hitActor->GetActorLocation().Y+60,hitActor->GetActorLocation().Z));
+		GetController()->SetControlRotation(FRotator(targetRotation.Pitch, targetRotation.Yaw, targetRotation.Roll));
+	}
+}
+
+void APlayerCharacter::LockOnTarget()
+{
+	if (!hitActor)
+	{
+		HardLockTrace();
+		hitActor = Cast<AActor>(LockHitResult.GetActor());
+		GetWorldTimerManager().ClearTimer(LockTimerHandle);
+		GetWorldTimerManager().SetTimer(LockTimerHandle, this, &APlayerCharacter::HardLock, 0.01, true);
+	}
+	else
+	{
+		hitActor = NULL;
+		GetWorldTimerManager().ClearTimer(LockTimerHandle);
+		GetWorldTimerManager().SetTimer(LockTimerHandle, this, &APlayerCharacter::SoftLockTrace, 0.01, true);
 	}
 }
