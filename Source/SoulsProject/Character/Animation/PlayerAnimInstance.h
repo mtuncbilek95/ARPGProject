@@ -32,11 +32,8 @@ protected:
 #pragma region "Interface Functions"
 
 	virtual void PlayMontage_Implementation(EAttackState playState) override;
-
 	virtual void DefaulAttack_Implementation() override;
-
 	virtual void NextCombo_Implementation(FName LightAttack, FName HeavyAttack) override;
-
 	virtual void AttackSetter_Implementation(bool bCanAttack) override;
 
 #pragma endregion
@@ -45,7 +42,6 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category= "Base System")
 	APlayerCharacter* CharacterRef;
-
 	UPROPERTY(BlueprintReadOnly, Category= "Base System")
 	USkeletalMeshComponent* MeshRef;
 
@@ -53,27 +49,30 @@ protected:
 
 	UPROPERTY(BlueprintReadOnly, Category= "Locomotion")
 	ELocomotionState LocomotionState;
-
 	UPROPERTY(BlueprintReadOnly, Category= "Locomotion")
 	EActionState ActionState;
-
 	UPROPERTY(BlueprintReadOnly, Category= "Locomotion")
 	EAbilityState AbilityState;
-
+	UPROPERTY(BlueprintReadOnly, Category= "Locomotion")
+	EFocusState FocusState;
+	
 	UPROPERTY(BlueprintReadOnly, Category= "Locomotion")
 	bool bAlreadyMoving;
 
-#pragma region "Combo Section Data"
+	UPROPERTY(BlueprintReadOnly, Category= "Locomotion")
+	float inputLR;
+	UPROPERTY(BlueprintReadOnly, Category= "Locomotion")
+	float inputFB;
 
+#pragma region "Combo Section Data"
+	
+public:
 	UPROPERTY(BlueprintReadWrite, Category= "Combo Mechanics")
 	FName LightAttackSection;
-
 	UPROPERTY(BlueprintReadWrite, Category= "Combo Mechanics")
 	FName HeavyAttackSection;
-
 	UPROPERTY(BlueprintReadWrite, Category= "Combo Mechanics")
 	FName DefaultLightAttackSection = "Light1";
-
 	UPROPERTY(BlueprintReadWrite, Category= "Combo Mechanics")
 	FName DefaultHeavyAttackSection = "Heavy1";
 
@@ -81,6 +80,5 @@ protected:
 
 private:
 	FAnimationData IntegratedCharacterData;
-
 	bool CalculateThreshold(float currentSpeed, float maxSpeed, float maxAcceleration);
 };

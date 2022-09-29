@@ -56,8 +56,13 @@ void UPlayerAnimInstance::SetEssentialData()
 		IntegratedCharacterData.fCurrentAcceleration = IntegratedCharacterData.vCurrentAcceleration.Size();
 
 		CharacterRef->SetLocomotionState(LocomotionState);
+		
 		ActionState = CharacterRef->GetActionState();
 		AbilityState = CharacterRef->GetAbilityState();
+		FocusState = CharacterRef->GetFocusState();
+
+		inputFB = CharacterRef->GetInputAxisValue("FB");
+		inputLR = CharacterRef->GetInputAxisValue("LR");
 		
 		bAlreadyMoving = IntegratedCharacterData.currentSpeed > 50;
 	}

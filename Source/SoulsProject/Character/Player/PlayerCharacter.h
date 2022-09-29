@@ -16,7 +16,7 @@
 //	Movement States Enum Classes
 #include "SoulsProject/Character/States/MotionStates.h"
 
-#include "SoulsProject/Character/Weapon/WeaponActor.h"
+#include "SoulsProject/Character/Weapon/PlayerWeaponBase.h"
 #include "PlayerCharacter.generated.h"
 
 UCLASS()
@@ -73,8 +73,10 @@ public:
 	void SoftLockTrace();
 	UFUNCTION(BlueprintCallable, Category= "Ray-casting Data")
 	void HardLock();
-	UFUNCTION(BlueprintCallable, Category = "ray-casting Data")
+	UFUNCTION(BlueprintCallable, Category = "Ray-casting Data")
 	void LockOnTarget();
+	UFUNCTION(BlueprintCallable, Category= "Ray-casting Data")
+	void LockingProps(bool bIsPlayerLocked);
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category= "Ray-casting Data")
 	FHitResult GetHitResult() { return LockHitResult; }
 
@@ -96,7 +98,8 @@ public:
 	FORCEINLINE void SetActionState(EActionState stateValue) { ActionState = stateValue; }
 	FORCEINLINE EAbilityState GetAbilityState() { return AbilityState; }
 	FORCEINLINE void SetAbilityState(EAbilityState stateValue) { AbilityState = stateValue; }
-
+	FORCEINLINE EFocusState GetFocusState() { return FocusState; }
+	FORCEINLINE void SetFocusState(EFocusState stateValue) {FocusState = stateValue;}
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category= "Custom Functions")
 	FORCEINLINE bool GetCanAttack() { return bCanAttack; }
 
@@ -107,6 +110,7 @@ private:
 	ELocomotionState LocomotionState;
 	EActionState ActionState = EActionState::ParkourMode;
 	EAbilityState AbilityState = EAbilityState::GroundState;
+	EFocusState FocusState = EFocusState::FreeState;
 	bool bCanAttack = true;
 
 #pragma endregion
@@ -115,22 +119,12 @@ private:
 
 public:
 	UFUNCTION(BlueprintCallable, Category= "Custom Components")
-	void SetWeaponActor(AWeaponActor* actor) { WeaponActor = actor; }
+	void SetWeaponActor(APlayerWeaponBase* actor) { WeaponActor = actor; }
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category= "Custom Components")
-	AWeaponActor* GetWeaponActor() { return WeaponActor; }
+	APlayerWeaponBase* GetWeaponActor() { return WeaponActor; }
 
 private:
-	AWeaponActor* WeaponActor;
+	APlayerWeaponBase* WeaponActor;
 
-#pragma endregion
-
-#pragma region "Imgui Debugger"
-
-public:
-	void ImGuiRun();
-	
-private:
-	float debugSpeed = 370;
-	float debugSpeedOld = 370;
 #pragma endregion
 };

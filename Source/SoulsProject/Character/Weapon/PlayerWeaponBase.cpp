@@ -1,13 +1,13 @@
 ﻿//	2022 Metehan Tuncbilek TR, All rights reserved.
 
 
-#include "WeaponActor.h"
+#include "PlayerWeaponBase.h"
 
 #include "SoulsProject/World/Enemy/Base/EnemyBase.h"
 
 
 // Sets default values
-AWeaponActor::AWeaponActor()
+APlayerWeaponBase::APlayerWeaponBase()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -29,12 +29,12 @@ AWeaponActor::AWeaponActor()
 }
 
 // Called when the game starts or when spawned
-void AWeaponActor::BeginPlay()
+void APlayerWeaponBase::BeginPlay()
 {
 	Super::BeginPlay();
 }
 
-void AWeaponActor::CombatOverlapping(AActor* OverlapActor)
+void APlayerWeaponBase::CombatOverlapping(AActor* OverlapActor)
 {
 	AEnemyBase* Enemy = Cast<AEnemyBase>(OverlapActor);
 	if(Enemy)
@@ -44,12 +44,12 @@ void AWeaponActor::CombatOverlapping(AActor* OverlapActor)
 }
 
 // Called every frame
-void AWeaponActor::Tick(float DeltaTime)
+void APlayerWeaponBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
 
-void AWeaponActor::ChangeCollision(bool value)
+void APlayerWeaponBase::ChangeCollision(bool value)
 {
 	if(value)
 	{

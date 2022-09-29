@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "SoulsProject/GameMode/MainGameMode.h"
+#include "SoulsProject/World/Enemy/Weapon/EnemyWeaponBase.h"
 #include "EnemyBase.generated.h"
 
 /*
@@ -35,11 +36,11 @@ public:
 	
 public:
 	UFUNCTION(BlueprintCallable, Category= "Custom Components")
-	void SetWeaponActor(AWeaponActor* actor) { WeaponActor = actor; }
+	void SetWeaponActor(AEnemyWeaponBase* actor) { WeaponActor = actor; }
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category= "Custom Components")
-	AWeaponActor* GetWeaponActor() { return WeaponActor; }
+	AEnemyWeaponBase* GetWeaponActor() { return WeaponActor; }
 private:
-	AWeaponActor* WeaponActor;
+	AEnemyWeaponBase* WeaponActor;
 #pragma endregion 
 	
 protected:
@@ -49,9 +50,6 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	UFUNCTION(BlueprintNativeEvent)
-	void EnemyHurt();
 
 #pragma region "Character In-Game States"
 	

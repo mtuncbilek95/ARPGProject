@@ -16,7 +16,7 @@ enum class ELocomotionState : uint8
 
 //	State that determines if player focused on an enemy or not.
 UENUM(BlueprintType)
-enum class FFocusState : uint8
+enum class EFocusState : uint8
 {
 	FreeState	UMETA(DisplayName = "FreeState"),
 	FocusState	UMETA(DisplayName = "FocusState")

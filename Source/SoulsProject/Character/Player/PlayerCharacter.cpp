@@ -47,7 +47,6 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	//ImGuiRun();
 }
 
 void APlayerCharacter::Sprint(EExecuteBranch Branches)
@@ -135,15 +134,18 @@ void APlayerCharacter::SoftLockTrace()
 	IgnoreActors.Add(this);
 	EDrawDebugTrace::Type traceType = EDrawDebugTrace::ForOneFrame;
 	UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), GetActorLocation(), endPoint, 100, Types, false, IgnoreActors, traceType, LockHitResult, true);
-	UKismetSystemLibrary::DrawDebugArrow(GetWorld(), GetActorLocation(), endPoint, 10, FColor::Red,0,3);
+	UKismetSystemLibrary::DrawDebugArrow(GetWorld(), GetActorLocation(), endPoint, 10, FColor::Red, 0, 3);
 }
 
 void APlayerCharacter::HardLock()
 {
 	if (hitActor)
 	{
-		FRotator targetRotation = UKismetMathLibrary::FindLookAtRotation( GetActorLocation(), FVector(hitActor->GetActorLocation().X,hitActor->GetActorLocation().Y+60,hitActor->GetActorLocation().Z));
-		GetController()->SetControlRotation(FRotator(targetRotation.Pitch, targetRotation.Yaw, targetRotation.Roll));
+		FRotator targetControlRotation = UKismetMathLibrary::FindLookAtRotation(
+			GetActorLocation(), FVector(hitActor->GetActorLocation().X, hitActor->GetActorLocation().Y + 60, hitActor->GetActorLocation().Z));
+		FRotator targetActorRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), hitActor->GetActorLocation());
+		GetController()->SetControlRotation(FRotator(targetControlRotation.Pitch, targetControlRotation.Yaw, targetControlRotation.Roll));
+		SetActorRotation(targetActorRotation);
 	}
 }
 
@@ -155,25 +157,19 @@ void APlayerCharacter::LockOnTarget()
 		hitActor = Cast<AActor>(LockHitResult.GetActor());
 		GetWorldTimerManager().ClearTimer(LockTimerHandle);
 		GetWorldTimerManager().SetTimer(LockTimerHandle, this, &APlayerCharacter::HardLock, 0.01, true);
+		LockingProps(true);
 	}
 	else
 	{
 		hitActor = NULL;
 		GetWorldTimerManager().ClearTimer(LockTimerHandle);
 		GetWorldTimerManager().SetTimer(LockTimerHandle, this, &APlayerCharacter::SoftLockTrace, 0.01, true);
+		LockingProps(false);
 	}
 }
 
-void APlayerCharacter::ImGuiRun()
+void APlayerCharacter::LockingProps(bool bIsPlayerLocked)
 {
-	ImGui::Begin("Player Debugger", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
-	ImGui::SliderFloat("Max Speed", &debugSpeed, 150,600);
-	ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
-	ImGui::End();
-
-	if(debugSpeed != debugSpeedOld)
-	{
-		debugSpeedOld = debugSpeed;
-		GetCharacterMovement()->MaxWalkSpeed = debugSpeed;
-	}
+	bIsPlayerLocked ? GetCharacterMovement()->bOrientRotationToMovement = false : GetCharacterMovement()->bOrientRotationToMovement = true;
+	bIsPlayerLocked ? SetFocusState(EFocusState::FocusState) : SetFocusState(EFocusState::FreeState);
 }

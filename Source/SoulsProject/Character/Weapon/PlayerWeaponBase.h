@@ -6,16 +6,16 @@
 #include "Components/BoxComponent.h"
 #include "GameFramework/Actor.h"
 #include "SoulsProject/Character/States/ExecutionBranches.h"
-#include "WeaponActor.generated.h"
+#include "PlayerWeaponBase.generated.h"
 
 UCLASS()
-class SOULSPROJECT_API AWeaponActor : public AActor
+class SOULSPROJECT_API APlayerWeaponBase : public AActor
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this actor's properties
-	AWeaponActor();
+	APlayerWeaponBase();
 
 	UPROPERTY(EditDefaultsOnly, Category= "Scene Component")
 	USceneComponent* SceneComponent;
