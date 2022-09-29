@@ -18,32 +18,33 @@ class SOULSPROJECT_API AEnemyBase : public ACharacter
 {
 	GENERATED_BODY()
 
+#pragma region "General Components"
+	
 public:
 	// Sets default values for this character's properties
 	AEnemyBase();
 
 	UPROPERTY(BlueprintReadWrite, Category= "Initial Data")
 	AMainGameMode* GameMode;
-
-#pragma region "Character In-Game States"
-
-	UPROPERTY(BlueprintReadWrite, VisibleDefaultsOnly, Category= "Character Component")
-	ELocomotionState LocomotionState;
-
-	UPROPERTY(BlueprintReadWrite, VisibleDefaultsOnly, Category= "Character Component")
-	EActionState ActionState = EActionState::ParkourMode;
-
-	UPROPERTY(BlueprintReadWrite, VisibleDefaultsOnly, Category= "Character Component")
-	EAbilityState AbilityState = EAbilityState::GroundState;
+	UPROPERTY(BlueprintReadWrite, Category = "General Components")
+	UChildActorComponent* WeaponSlot;
 
 #pragma endregion
+
+#pragma region "General Functions"
+	
+public:
+	UFUNCTION(BlueprintCallable, Category= "Custom Components")
+	void SetWeaponActor(AWeaponActor* actor) { WeaponActor = actor; }
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category= "Custom Components")
+	AWeaponActor* GetWeaponActor() { return WeaponActor; }
+private:
+	AWeaponActor* WeaponActor;
+#pragma endregion 
 	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-	UPROPERTY(BlueprintReadWrite, Category= "Locomotion")
-	bool bCanAttack = true;
 
 public:
 	// Called every frame
@@ -51,7 +52,34 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent)
 	void EnemyHurt();
+
+#pragma region "Character In-Game States"
+	
+public:
+	FORCEINLINE ELocomotionState GetLocomotionState() { return LocomotionState; }
+	FORCEINLINE void SetLocomotionState(ELocomotionState stateValue) { LocomotionState = stateValue; }
+	FORCEINLINE EActionState GetActionState() { return ActionState; }
+	FORCEINLINE void SetActionState(EActionState stateValue) { ActionState = stateValue; }
+	FORCEINLINE EAbilityState GetAbilityState() { return AbilityState; }
+	FORCEINLINE void SetAbilityState(EAbilityState stateValue) { AbilityState = stateValue; }
 	
 private:
+	ELocomotionState LocomotionState;
+	EActionState ActionState = EActionState::ParkourMode;
+	EAbilityState AbilityState = EAbilityState::GroundState;
 
+#pragma endregion
+
+#pragma region "Action Functions"
+	
+public:
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category= "Action Functions")
+	bool GetCanAttack() { return bCanAttack; }
+	UFUNCTION(BlueprintCallable, Category= "Action Functions")
+	void SetCanAttack(bool attackValue) { bCanAttack = attackValue; }
+
+private:
+	bool bCanAttack = true;
+
+#pragma endregion
 };

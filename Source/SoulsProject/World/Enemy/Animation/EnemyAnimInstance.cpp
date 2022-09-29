@@ -49,9 +49,9 @@ void UEnemyAnimInstance::SetEssentialData()
 		IntegratedCharacterData.currentSpeed = IntegratedCharacterData.currentVelocity.Size();
 		IntegratedCharacterData.fCurrentAcceleration = IntegratedCharacterData.vCurrentAcceleration.Size();
 
-		EnemyRef->LocomotionState = LocomotionState;
-		ActionState = EnemyRef->ActionState;
-		AbilityState = EnemyRef->AbilityState;
+		EnemyRef->SetLocomotionState(LocomotionState);
+		ActionState = EnemyRef->GetActionState();
+		AbilityState = EnemyRef->GetAbilityState();
 	}
 
 }

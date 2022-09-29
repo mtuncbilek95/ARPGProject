@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include <imgui.h>
 
 //	Basic Player Components
 #include "Camera/CameraComponent.h"
@@ -34,7 +35,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category= "Character Component")
 	UCameraComponent* Camera;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Character Component")
-	UChildActorComponent* Weapon;
+	UChildActorComponent* WeaponSlot;
 
 protected:
 	// Called when the game starts or when spawned
@@ -121,5 +122,15 @@ public:
 private:
 	AWeaponActor* WeaponActor;
 
+#pragma endregion
+
+#pragma region "Imgui Debugger"
+
+public:
+	void ImGuiRun();
+	
+private:
+	float debugSpeed = 370;
+	float debugSpeedOld = 370;
 #pragma endregion
 };

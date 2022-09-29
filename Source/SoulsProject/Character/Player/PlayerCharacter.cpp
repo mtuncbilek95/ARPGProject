@@ -33,8 +33,8 @@ APlayerCharacter::APlayerCharacter()
 
 	bUseControllerRotationYaw = false;
 
-	Weapon = CreateDefaultSubobject<UChildActorComponent>(TEXT("Weapon"));
-	Weapon->SetupAttachment(GetMesh(), "hand_rSocket");
+	WeaponSlot = CreateDefaultSubobject<UChildActorComponent>(TEXT("Weapon"));
+	WeaponSlot->SetupAttachment(GetMesh(), "hand_rSocket");
 }
 
 // Called when the game starts or when spawned
@@ -47,6 +47,7 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	//ImGuiRun();
 }
 
 void APlayerCharacter::Sprint(EExecuteBranch Branches)
@@ -160,5 +161,19 @@ void APlayerCharacter::LockOnTarget()
 		hitActor = NULL;
 		GetWorldTimerManager().ClearTimer(LockTimerHandle);
 		GetWorldTimerManager().SetTimer(LockTimerHandle, this, &APlayerCharacter::SoftLockTrace, 0.01, true);
+	}
+}
+
+void APlayerCharacter::ImGuiRun()
+{
+	ImGui::Begin("Player Debugger", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+	ImGui::SliderFloat("Max Speed", &debugSpeed, 150,600);
+	ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+	ImGui::End();
+
+	if(debugSpeed != debugSpeedOld)
+	{
+		debugSpeedOld = debugSpeed;
+		GetCharacterMovement()->MaxWalkSpeed = debugSpeed;
 	}
 }
