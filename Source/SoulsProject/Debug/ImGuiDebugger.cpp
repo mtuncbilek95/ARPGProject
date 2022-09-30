@@ -26,5 +26,19 @@ void AImGuiDebugger::BeginPlay()
 void AImGuiDebugger::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	APlayerCharacter* CharRef = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	ImGui::Begin("Character Debugger", false, ImGuiWindowFlags_AlwaysAutoResize);
+	ImGui::InputFloat("Sphere Radius: ", &sphereRad, 10, 100);
+	ImGui::InputFloat("Sphere Length: ", &sphereLength, 100, 500);
+	
+	ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+	ImGui::End();
+
+	if(sphereRad != sphereRadOld && CharRef || sphereLength != sphereLengthOld)
+	{
+		sphereRadOld = sphereRad;
+		CharRef->SetSphereRad(sphereRad);
+		CharRef->SetSphereLength(sphereLength);
+	}
 }
 

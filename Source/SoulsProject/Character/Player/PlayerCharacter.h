@@ -79,7 +79,9 @@ public:
 	void LockingProps(bool bIsPlayerLocked);
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category= "Ray-casting Data")
 	FHitResult GetHitResult() { return LockHitResult; }
-
+	
+	void SetSphereRad(float valueRad) { sphereRadius = valueRad; }
+	void SetSphereLength(float valueLength) {sphereLength = valueLength; }
 private:
 	AActor* hitActor;
 	FTimerHandle LockTimerHandle;

@@ -25,6 +25,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
-
+    float sphereRad;
+    float sphereRadOld;
+	float sphereLength;
+	float sphereLengthOld;
 
 };
