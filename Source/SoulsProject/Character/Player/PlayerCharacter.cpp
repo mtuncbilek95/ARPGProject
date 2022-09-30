@@ -144,7 +144,7 @@ void APlayerCharacter::HardLock()
 		FRotator targetControlRotation = UKismetMathLibrary::FindLookAtRotation(
 			GetActorLocation(), FVector(hitActor->GetActorLocation().X, hitActor->GetActorLocation().Y + 60, hitActor->GetActorLocation().Z));
 		FRotator targetActorRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), hitActor->GetActorLocation());
-		GetController()->SetControlRotation(FRotator(targetControlRotation.Pitch, targetControlRotation.Yaw, targetControlRotation.Roll));
+		GetController()->SetControlRotation(UKismetMathLibrary::RInterpTo(GetControlRotation(),targetControlRotation,GetWorld()->GetDeltaSeconds(),interpSpeed));
 		SetActorRotation(targetActorRotation);
 	}
 }
@@ -156,15 +156,18 @@ void APlayerCharacter::LockOnTarget()
 		HardLockTrace();
 		hitActor = Cast<AActor>(LockHitResult.GetActor());
 		GetWorldTimerManager().ClearTimer(LockTimerHandle);
-		GetWorldTimerManager().SetTimer(LockTimerHandle, this, &APlayerCharacter::HardLock, 0.01, true);
-		LockingProps(true);
+		GetWorldTimerManager().SetTimer(LockTimerHandle, this, &APlayerCharacter::HardLock, 0.001, true);
+		if(hitActor)
+			LockingProps(true);
 	}
 	else
 	{
 		hitActor = NULL;
 		GetWorldTimerManager().ClearTimer(LockTimerHandle);
-		GetWorldTimerManager().SetTimer(LockTimerHandle, this, &APlayerCharacter::SoftLockTrace, 0.01, true);
+		GetWorldTimerManager().SetTimer(LockTimerHandle, this, &APlayerCharacter::SoftLockTrace, 0.001, true);
 		LockingProps(false);
+		if(hitActor)
+			LockingProps(true);
 	}
 }
 

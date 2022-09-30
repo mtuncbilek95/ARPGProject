@@ -30,15 +30,19 @@ void AImGuiDebugger::Tick(float DeltaTime)
 	ImGui::Begin("Character Debugger", false, ImGuiWindowFlags_AlwaysAutoResize);
 	ImGui::InputFloat("Sphere Radius: ", &sphereRad, 10, 100);
 	ImGui::InputFloat("Sphere Length: ", &sphereLength, 100, 500);
+	ImGui::InputFloat("Camera Focus Speed: ", &interpSpeed, 0.5, 1);
 	
 	ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
 	ImGui::End();
 
-	if(sphereRad != sphereRadOld && CharRef || sphereLength != sphereLengthOld)
+	if(sphereRad != sphereRadOld && CharRef || sphereLength != sphereLengthOld || interpSpeed != interpSpeedOld )
 	{
 		sphereRadOld = sphereRad;
+		sphereLengthOld = sphereLength;
+		interpSpeedOld = interpSpeed;
 		CharRef->SetSphereRad(sphereRad);
 		CharRef->SetSphereLength(sphereLength);
+		CharRef->SetInterpSpeed(interpSpeed);
 	}
 }
 

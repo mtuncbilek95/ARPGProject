@@ -29,5 +29,7 @@ private:
     float sphereRadOld;
 	float sphereLength;
 	float sphereLengthOld;
+	float interpSpeed;
+	float interpSpeedOld;
 
 };

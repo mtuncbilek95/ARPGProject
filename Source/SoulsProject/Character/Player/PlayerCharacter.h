@@ -79,16 +79,17 @@ public:
 	void LockingProps(bool bIsPlayerLocked);
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category= "Ray-casting Data")
 	FHitResult GetHitResult() { return LockHitResult; }
-	
+
 	void SetSphereRad(float valueRad) { sphereRadius = valueRad; }
-	void SetSphereLength(float valueLength) {sphereLength = valueLength; }
+	void SetSphereLength(float valueLength) { sphereLength = valueLength; }
+	void SetInterpSpeed(float valueInterp) { interpSpeed = valueInterp; }
 private:
 	AActor* hitActor;
 	FTimerHandle LockTimerHandle;
 	FHitResult LockHitResult;
 	float sphereLength = 1000;
 	float sphereRadius = 100;
-
+	float interpSpeed = 20;
 #pragma endregion
 
 #pragma region "Character In-Game States"
@@ -101,7 +102,7 @@ public:
 	FORCEINLINE EAbilityState GetAbilityState() { return AbilityState; }
 	FORCEINLINE void SetAbilityState(EAbilityState stateValue) { AbilityState = stateValue; }
 	FORCEINLINE EFocusState GetFocusState() { return FocusState; }
-	FORCEINLINE void SetFocusState(EFocusState stateValue) {FocusState = stateValue;}
+	FORCEINLINE void SetFocusState(EFocusState stateValue) { FocusState = stateValue; }
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category= "Custom Functions")
 	FORCEINLINE bool GetCanAttack() { return bCanAttack; }
 
@@ -122,6 +123,7 @@ private:
 public:
 	UFUNCTION(BlueprintCallable, Category= "Custom Components")
 	void SetWeaponActor(APlayerWeaponBase* actor) { WeaponActor = actor; }
+
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category= "Custom Components")
 	APlayerWeaponBase* GetWeaponActor() { return WeaponActor; }
 
