@@ -29,7 +29,7 @@ void AMainGameMode::CheckActionState()
 	}
 	else
 	{
-		CharacterReference->SetActionState(EActionState::ParkourMode);
+		CharacterReference->SetActionState(EActionState::FightMode);
 	}
 }
 

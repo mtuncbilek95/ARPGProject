@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "SoulsProject/GameMode/MainGameMode.h"
-#include "SoulsProject/World/Enemy/Weapon/EnemyWeaponBase.h"
+#include "SoulsProject/Enemy/Weapon/EnemyWeaponBase.h"
 #include "EnemyBase.generated.h"
 
 /*
@@ -27,7 +27,7 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category= "Initial Data")
 	AMainGameMode* GameMode;
-	UPROPERTY(BlueprintReadWrite, Category = "General Components")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "General Components")
 	UChildActorComponent* WeaponSlot;
 
 #pragma endregion
@@ -36,11 +36,14 @@ public:
 	
 public:
 	UFUNCTION(BlueprintCallable, Category= "Custom Components")
-	void SetWeaponActor(AEnemyWeaponBase* actor) { WeaponActor = actor; }
+	void SetWeaponActor(AEnemyWeaponBase* enemyActor) { WeaponActor = enemyActor; }
+	
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category= "Custom Components")
 	AEnemyWeaponBase* GetWeaponActor() { return WeaponActor; }
+	
 private:
 	AEnemyWeaponBase* WeaponActor;
+
 #pragma endregion 
 	
 protected:
@@ -76,6 +79,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category= "Action Functions")
 	void SetCanAttack(bool attackValue) { bCanAttack = attackValue; }
 
+	UFUNCTION(BlueprintNativeEvent, Category= "Action Functions")
+	void GetHitByPlayer();
 private:
 	bool bCanAttack = true;
 

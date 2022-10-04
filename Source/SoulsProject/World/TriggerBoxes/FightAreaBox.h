@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "Engine/TriggerBox.h"
 #include "SoulsProject/GameMode/MainGameMode.h"
-#include "SoulsProject/World/Enemy/Base/EnemyBase.h"
+#include "SoulsProject/Enemy/Base/EnemyBase.h"
 #include "FightAreaBox.generated.h"
 
 /*

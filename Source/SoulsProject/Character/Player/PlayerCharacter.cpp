@@ -145,7 +145,7 @@ void APlayerCharacter::HardLock()
 			GetActorLocation(), FVector(hitActor->GetActorLocation().X, hitActor->GetActorLocation().Y + 60, hitActor->GetActorLocation().Z));
 		FRotator targetActorRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), hitActor->GetActorLocation());
 		GetController()->SetControlRotation(UKismetMathLibrary::RInterpTo(GetControlRotation(),targetControlRotation,GetWorld()->GetDeltaSeconds(),interpSpeed));
-		SetActorRotation(targetActorRotation);
+		SetActorRotation(targetActorRotation,ETeleportType::ResetPhysics);
 	}
 }
 
@@ -175,4 +175,8 @@ void APlayerCharacter::LockingProps(bool bIsPlayerLocked)
 {
 	bIsPlayerLocked ? GetCharacterMovement()->bOrientRotationToMovement = false : GetCharacterMovement()->bOrientRotationToMovement = true;
 	bIsPlayerLocked ? SetFocusState(EFocusState::FocusState) : SetFocusState(EFocusState::FreeState);
+}
+
+void APlayerCharacter::GetHitByEnemy_Implementation()
+{
 }

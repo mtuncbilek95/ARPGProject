@@ -89,7 +89,7 @@ private:
 	FHitResult LockHitResult;
 	float sphereLength = 1000;
 	float sphereRadius = 100;
-	float interpSpeed = 20;
+	float interpSpeed = 0.2f;
 #pragma endregion
 
 #pragma region "Character In-Game States"
@@ -103,15 +103,15 @@ public:
 	FORCEINLINE void SetAbilityState(EAbilityState stateValue) { AbilityState = stateValue; }
 	FORCEINLINE EFocusState GetFocusState() { return FocusState; }
 	FORCEINLINE void SetFocusState(EFocusState stateValue) { FocusState = stateValue; }
+
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category= "Custom Functions")
 	FORCEINLINE bool GetCanAttack() { return bCanAttack; }
-
 	UFUNCTION(BlueprintCallable, Category= "Custom Functions")
 	FORCEINLINE void SetCanAttack(bool attackValue) { bCanAttack = attackValue; }
 
 private:
 	ELocomotionState LocomotionState;
-	EActionState ActionState = EActionState::ParkourMode;
+	EActionState ActionState = EActionState::FightMode;
 	EAbilityState AbilityState = EAbilityState::GroundState;
 	EFocusState FocusState = EFocusState::FreeState;
 	bool bCanAttack = true;
@@ -122,8 +122,8 @@ private:
 
 public:
 	UFUNCTION(BlueprintCallable, Category= "Custom Components")
-	void SetWeaponActor(APlayerWeaponBase* actor) { WeaponActor = actor; }
-
+	void SetWeaponActor(APlayerWeaponBase* playerActor) { WeaponActor = playerActor; }
+	
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category= "Custom Components")
 	APlayerWeaponBase* GetWeaponActor() { return WeaponActor; }
 
@@ -131,4 +131,12 @@ private:
 	APlayerWeaponBase* WeaponActor;
 
 #pragma endregion
+
+#pragma region "Action Functions"
+
+public:
+	UFUNCTION(BlueprintNativeEvent, Category= "Action Functions")
+	void GetHitByEnemy();
+
+#pragma endregion 
 };

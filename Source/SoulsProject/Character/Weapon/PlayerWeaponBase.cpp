@@ -3,7 +3,7 @@
 
 #include "PlayerWeaponBase.h"
 
-#include "SoulsProject/World/Enemy/Base/EnemyBase.h"
+#include "SoulsProject/Enemy/Base/EnemyBase.h"
 
 
 // Sets default values
@@ -40,6 +40,7 @@ void APlayerWeaponBase::CombatOverlapping(AActor* OverlapActor)
 	if(Enemy)
 	{
 		GEngine->AddOnScreenDebugMessage(0, 5.0f, FColor::Cyan, "Enemy got hurt");
+		Enemy->GetHitByPlayer();
 	}
 }
 

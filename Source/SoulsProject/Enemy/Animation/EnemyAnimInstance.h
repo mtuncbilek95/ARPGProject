@@ -16,7 +16,7 @@
 #include "SoulsProject/Character/States/MotionStates.h"
 
 //	Enemy base class
-#include "SoulsProject/World/Enemy/Base/EnemyBase.h"
+#include "SoulsProject/Enemy/Base/EnemyBase.h"
 
 #include "EnemyAnimInstance.generated.h"
 
