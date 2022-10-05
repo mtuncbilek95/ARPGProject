@@ -30,7 +30,7 @@ protected:
 	virtual void NativeInitializeAnimation() override;
 
 #pragma region "Interface Functions"
-
+	
 	virtual void PlayMontage_Implementation(EAttackState playState) override;
 	virtual void DefaulAttack_Implementation() override;
 	virtual void NextCombo_Implementation(FName LightAttack, FName HeavyAttack) override;

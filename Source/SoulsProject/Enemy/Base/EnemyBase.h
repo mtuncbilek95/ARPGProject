@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "SoulsProject/GameMode/MainGameMode.h"
-#include "SoulsProject/Enemy/Weapon/EnemyWeaponBase.h"
 #include "EnemyBase.generated.h"
 
 /*
@@ -27,22 +26,19 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category= "Initial Data")
 	AMainGameMode* GameMode;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "General Components")
-	UChildActorComponent* WeaponSlot;
-
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Custom Component")
+	UStaticMeshComponent* WeaponSlot;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Custom Component")
+	UBoxComponent* WeaponCollision;
 #pragma endregion
 
-#pragma region "General Functions"
+#pragma region "Custom Component"
 	
 public:
-	UFUNCTION(BlueprintCallable, Category= "Custom Components")
-	void SetWeaponActor(AEnemyWeaponBase* enemyActor) { WeaponActor = enemyActor; }
-	
-	UFUNCTION(BlueprintPure, BlueprintCallable, Category= "Custom Components")
-	AEnemyWeaponBase* GetWeaponActor() { return WeaponActor; }
-	
-private:
-	AEnemyWeaponBase* WeaponActor;
+	UFUNCTION(BlueprintCallable, Category= "Custom Component")
+	void ChangeCollision(bool valueCollision);
+	UFUNCTION(BlueprintCallable, Category= "Custom Component")
+	void CombatOverlapping(AActor* OverlapActor);
 
 #pragma endregion 
 	
@@ -81,6 +77,9 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, Category= "Action Functions")
 	void GetHitByPlayer();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category= "Action Functions")
+	void Attack(UAnimMontage* Montage, float& length);
 private:
 	bool bCanAttack = true;
 

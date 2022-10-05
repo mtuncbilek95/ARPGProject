@@ -3,20 +3,18 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include <imgui.h>
 
 //	Basic Player Components
 #include "Camera/CameraComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Components/BoxComponent.h"
 
 //	Enum classes for Execution Branch creation
 #include "SoulsProject/Character/States/ExecutionBranches.h"
 
 //	Movement States Enum Classes
 #include "SoulsProject/Character/States/MotionStates.h"
-
-#include "SoulsProject/Character/Weapon/PlayerWeaponBase.h"
 #include "PlayerCharacter.generated.h"
 
 UCLASS()
@@ -35,7 +33,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category= "Character Component")
 	UCameraComponent* Camera;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Character Component")
-	UChildActorComponent* WeaponSlot;
+	UStaticMeshComponent* WeaponSlot;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Character Component")
+	UBoxComponent* WeaponCollision;
 
 protected:
 	// Called when the game starts or when spawned
@@ -106,6 +106,7 @@ public:
 
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category= "Custom Functions")
 	FORCEINLINE bool GetCanAttack() { return bCanAttack; }
+
 	UFUNCTION(BlueprintCallable, Category= "Custom Functions")
 	FORCEINLINE void SetCanAttack(bool attackValue) { bCanAttack = attackValue; }
 
@@ -118,25 +119,22 @@ private:
 
 #pragma endregion
 
-#pragma region "Custom Components Property"
-
-public:
-	UFUNCTION(BlueprintCallable, Category= "Custom Components")
-	void SetWeaponActor(APlayerWeaponBase* playerActor) { WeaponActor = playerActor; }
-	
-	UFUNCTION(BlueprintPure, BlueprintCallable, Category= "Custom Components")
-	APlayerWeaponBase* GetWeaponActor() { return WeaponActor; }
-
-private:
-	APlayerWeaponBase* WeaponActor;
-
-#pragma endregion
-
 #pragma region "Action Functions"
 
 public:
 	UFUNCTION(BlueprintNativeEvent, Category= "Action Functions")
 	void GetHitByEnemy();
+	UFUNCTION(BlueprintCallable, Category= "Action Functions")
+	void ChangeCollision(bool value);
+	UFUNCTION(BlueprintCallable, Category= "Action Functions")
+	void CombatOverlapping(AActor* OverlapActor);
+#pragma endregion
 
-#pragma endregion 
+#pragma region "Locomotion Functions"
+
+public:
+	UFUNCTION(BlueprintPure, Category= "Locomotion Functions")
+	FVector PredictEndLocation();
+
+#pragma endregion
 };

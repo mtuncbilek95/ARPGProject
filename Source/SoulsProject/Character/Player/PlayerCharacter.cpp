@@ -9,6 +9,7 @@
 
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "SoulsProject/Enemy/Base/EnemyBase.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -33,8 +34,10 @@ APlayerCharacter::APlayerCharacter()
 
 	bUseControllerRotationYaw = false;
 
-	WeaponSlot = CreateDefaultSubobject<UChildActorComponent>(TEXT("Weapon"));
+	WeaponSlot = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
 	WeaponSlot->SetupAttachment(GetMesh(), "hand_rSocket");
+	WeaponCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("Weapon Collision"));
+	WeaponCollision->SetupAttachment(WeaponSlot);
 }
 
 // Called when the game starts or when spawned
@@ -175,6 +178,33 @@ void APlayerCharacter::LockingProps(bool bIsPlayerLocked)
 {
 	bIsPlayerLocked ? GetCharacterMovement()->bOrientRotationToMovement = false : GetCharacterMovement()->bOrientRotationToMovement = true;
 	bIsPlayerLocked ? SetFocusState(EFocusState::FocusState) : SetFocusState(EFocusState::FreeState);
+}
+
+void APlayerCharacter::ChangeCollision(bool value)
+{
+	if(value)
+	{
+		WeaponCollision->SetCollisionProfileName("Weapon");
+	}
+	else
+	{
+		WeaponCollision->SetCollisionProfileName("NoCollision");
+	}
+}
+
+void APlayerCharacter::CombatOverlapping(AActor* OverlapActor)
+{
+	AEnemyBase* Enemy = Cast<AEnemyBase>(OverlapActor);
+	if(Enemy)
+	{
+		GEngine->AddOnScreenDebugMessage(0, 5.0f, FColor::Cyan, "Enemy got hurt");
+		Enemy->GetHitByPlayer();
+	}
+}
+
+FVector APlayerCharacter::PredictEndLocation()
+{
+	return FVector::Zero();
 }
 
 void APlayerCharacter::GetHitByEnemy_Implementation()
