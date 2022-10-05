@@ -2,7 +2,7 @@
 It is a showcase project which shows our skills on Game Development. We would like to consider this project as one level AA Game Project. Developed with Unreal Engine 5
 Current models and animations bought from UEMarketplace to start the project according to our perspective.
 
-## Completed Works (Last Update 09.17.2022):
+## Completed Works:
 - Basic Player
 - Basic Weapon
 - Basic PlayerAnimInstance
@@ -10,15 +10,14 @@ Current models and animations bought from UEMarketplace to start the project acc
 - Basic UI
 - Basic Combat Design
 - Enemy Locator Vision (Material)
+- Target Focus (Hard Lock & Soft Lock)
 
 ## Currently working on:
-- Target Focus Soft Lock
+- Behaviour Tree
+- Animation Programming
 - Cleaning the code structure.
 
 ## Future Update:
-
-- Behaviour Tree 
-- Target Focus (Hard Lock & Soft Lock)
 - Refactor Codes
 - More VFX
 - Custom Animations
