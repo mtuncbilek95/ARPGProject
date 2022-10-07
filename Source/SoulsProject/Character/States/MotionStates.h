@@ -49,3 +49,11 @@ enum class EAbilityState : uint8
 	GroundState,
 	InAirState
 };
+
+//	This state helps character to turn in place.
+UENUM(BlueprintType)
+enum class EIdleStates : uint8
+{
+	Idle,
+	TurnInPlace
+};

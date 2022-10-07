@@ -25,12 +25,14 @@ public:
 	void SetEssentialData();
 	UFUNCTION(BlueprintCallable, Category= "Locomotion")
 	void DetermineLocomotion();
-
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category= "Locomotion")
+	bool CheckIfTurnInPlace();
+	
 protected:
 	virtual void NativeInitializeAnimation() override;
 
 #pragma region "Interface Functions"
-	
+
 	virtual void PlayMontage_Implementation(EAttackState playState) override;
 	virtual void DefaulAttack_Implementation() override;
 	virtual void NextCombo_Implementation(FName LightAttack, FName HeavyAttack) override;
@@ -55,7 +57,7 @@ protected:
 	EAbilityState AbilityState;
 	UPROPERTY(BlueprintReadOnly, Category= "Locomotion")
 	EFocusState FocusState;
-	
+
 	UPROPERTY(BlueprintReadOnly, Category= "Locomotion")
 	bool bAlreadyMoving;
 
@@ -63,9 +65,15 @@ protected:
 	float inputLR;
 	UPROPERTY(BlueprintReadOnly, Category= "Locomotion")
 	float inputFB;
+	UPROPERTY(BlueprintReadOnly, Category= "Locomotion")
+	float turnValue;
+	UPROPERTY(BlueprintReadOnly, Category= "Locomotion")
+	float lookUpValue;
+	UPROPERTY(BlueprintReadOnly, Category= "Locomotion")
+	float absoluteRotYaw;
 
 #pragma region "Combo Section Data"
-	
+
 public:
 	UPROPERTY(BlueprintReadWrite, Category= "Combo Mechanics")
 	FName LightAttackSection;
@@ -81,4 +89,6 @@ public:
 private:
 	FAnimationData IntegratedCharacterData;
 	bool CalculateThreshold(float currentSpeed, float maxSpeed, float maxAcceleration);
+
+	float ElapsedDelayTime;
 };

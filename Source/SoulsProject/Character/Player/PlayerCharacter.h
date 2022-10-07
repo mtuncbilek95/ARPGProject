@@ -32,6 +32,8 @@ public:
 	USpringArmComponent* SpringArm;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category= "Character Component")
 	UCameraComponent* Camera;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category= "Character Component")
+	UStaticMeshComponent* VisionPlane;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Character Component")
 	UStaticMeshComponent* WeaponSlot;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Character Component")
@@ -135,6 +137,8 @@ public:
 public:
 	UFUNCTION(BlueprintPure, Category= "Locomotion Functions")
 	FVector PredictEndLocation();
+
+private:
 
 #pragma endregion
 };

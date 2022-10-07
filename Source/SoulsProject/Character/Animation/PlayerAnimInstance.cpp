@@ -63,9 +63,12 @@ void UPlayerAnimInstance::SetEssentialData()
 
 		inputFB = CharacterRef->GetInputAxisValue("FB");
 		inputLR = CharacterRef->GetInputAxisValue("LR");
-		
+		turnValue = CharacterRef->GetInputAxisValue("Turn");
+		lookUpValue = CharacterRef->GetInputAxisValue("LookUp");
+		absoluteRotYaw = CharacterRef->GetBaseAimRotation().Yaw-CharacterRef->GetActorRotation().Yaw;
 		bAlreadyMoving = IntegratedCharacterData.currentSpeed > 50;
 	}
+	
 }
 
 void UPlayerAnimInstance::DetermineLocomotion()
@@ -102,6 +105,19 @@ void UPlayerAnimInstance::DetermineLocomotion()
 				}
 			}
 		}
+	}
+}
+
+bool UPlayerAnimInstance::CheckIfTurnInPlace()
+{
+	if(CharacterRef)
+	{
+		FRotator absoluteRotator = CharacterRef->GetBaseAimRotation()-CharacterRef->GetActorRotation();
+		return FMath::Abs(inputLR) + FMath::Abs(inputFB) == 0 && LocomotionState == ELocomotionState::Idle && turnValue == 0.0f;
+	}
+	else
+	{
+		return false;
 	}
 }
 

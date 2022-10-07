@@ -38,6 +38,12 @@ APlayerCharacter::APlayerCharacter()
 	WeaponSlot->SetupAttachment(GetMesh(), "hand_rSocket");
 	WeaponCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("Weapon Collision"));
 	WeaponCollision->SetupAttachment(WeaponSlot);
+
+	VisionPlane = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Visual Plane"));
+	VisionPlane->SetupAttachment(Camera);
+
+	VisionPlane->SetRelativeLocation(FVector(60,0,0));
+	VisionPlane->SetRelativeRotation(FRotator(0,90,-90));
 }
 
 // Called when the game starts or when spawned
