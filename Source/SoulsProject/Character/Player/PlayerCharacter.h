@@ -14,17 +14,22 @@
 #include "SoulsProject/Character/States/ExecutionBranches.h"
 
 //	Movement States Enum Classes
+#include "SoulsProject/Character/Interfaces/WeaponCollision.h"
 #include "SoulsProject/Character/States/MotionStates.h"
 #include "PlayerCharacter.generated.h"
 
 UCLASS()
-class SOULSPROJECT_API APlayerCharacter : public ACharacter
+class SOULSPROJECT_API APlayerCharacter : public ACharacter, public IWeaponCollision
 {
 	GENERATED_BODY()
 
 #pragma region "Main Component"
 
 public:
+	void SetupSpringArm();
+	void SetupCamera();
+	void SetupWeapon();
+	void SetupCharacter();
 	//	Sets default values for this character's properties
 	APlayerCharacter();
 
@@ -67,28 +72,28 @@ private:
 #pragma region "Enemy Lock System"
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "Character Movement")
+	UFUNCTION(BlueprintCallable, Category = "Enemy Lock System")
 	FVector CalculateDirectionVector();
-	UFUNCTION(BlueprintCallable, Category= "Ray-casting Data")
+	UFUNCTION(BlueprintCallable, Category= "Enemy Lock System")
 	void HardLockTrace();
-	UFUNCTION(BlueprintCallable, Category= "Ray-casting Data")
+	UFUNCTION(BlueprintCallable, Category= "Enemy Lock System")
 	void SoftLockTrace();
-	UFUNCTION(BlueprintCallable, Category= "Ray-casting Data")
+	UFUNCTION(BlueprintCallable, Category= "Enemy Lock System")
 	void HardLock();
-	UFUNCTION(BlueprintCallable, Category = "Ray-casting Data")
+	UFUNCTION(BlueprintCallable, Category = "Enemy Lock System")
 	void LockOnTarget();
-	UFUNCTION(BlueprintCallable, Category= "Ray-casting Data")
+	UFUNCTION(BlueprintCallable, Category= "Enemy Lock System")
 	void LockingProps(bool bIsPlayerLocked);
-	UFUNCTION(BlueprintPure, BlueprintCallable, Category= "Ray-casting Data")
-	FHitResult GetHitResult() { return LockHitResult; }
 
-	void SetSphereRad(float valueRad) { sphereRadius = valueRad; }
-	void SetSphereLength(float valueLength) { sphereLength = valueLength; }
-	void SetInterpSpeed(float valueInterp) { interpSpeed = valueInterp; }
+	void SetSphereRad(float valueRad);
+	void SetSphereLength(float valueLength);
+	void SetInterpSpeed(float valueInterp);
+
 private:
 	AActor* hitActor;
 	FTimerHandle LockTimerHandle;
 	FHitResult LockHitResult;
+
 	float sphereLength = 1000;
 	float sphereRadius = 100;
 	float interpSpeed = 0.2f;
@@ -97,20 +102,20 @@ private:
 #pragma region "Character In-Game States"
 
 public:
-	FORCEINLINE ELocomotionState GetLocomotionState() { return LocomotionState; }
-	FORCEINLINE void SetLocomotionState(ELocomotionState stateValue) { LocomotionState = stateValue; }
-	FORCEINLINE EActionState GetActionState() { return ActionState; }
-	FORCEINLINE void SetActionState(EActionState stateValue) { ActionState = stateValue; }
-	FORCEINLINE EAbilityState GetAbilityState() { return AbilityState; }
-	FORCEINLINE void SetAbilityState(EAbilityState stateValue) { AbilityState = stateValue; }
-	FORCEINLINE EFocusState GetFocusState() { return FocusState; }
-	FORCEINLINE void SetFocusState(EFocusState stateValue) { FocusState = stateValue; }
+	FORCEINLINE ELocomotionState GetLocomotionState();
+	FORCEINLINE void SetLocomotionState(ELocomotionState stateValue);
+	FORCEINLINE EActionState GetActionState();
+	FORCEINLINE void SetActionState(EActionState stateValue);
+	FORCEINLINE EAbilityState GetAbilityState();
+	FORCEINLINE void SetAbilityState(EAbilityState stateValue);
+	FORCEINLINE EFocusState GetFocusState();
+	FORCEINLINE void SetFocusState(EFocusState stateValue);
 
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category= "Custom Functions")
-	FORCEINLINE bool GetCanAttack() { return bCanAttack; }
+	FORCEINLINE bool GetCanAttack();
 
 	UFUNCTION(BlueprintCallable, Category= "Custom Functions")
-	FORCEINLINE void SetCanAttack(bool attackValue) { bCanAttack = attackValue; }
+	FORCEINLINE void SetCanAttack(bool attackValue);
 
 private:
 	ELocomotionState LocomotionState;
@@ -126,19 +131,25 @@ private:
 public:
 	UFUNCTION(BlueprintNativeEvent, Category= "Action Functions")
 	void GetHitByEnemy();
-	UFUNCTION(BlueprintCallable, Category= "Action Functions")
-	void ChangeCollision(bool value);
-	UFUNCTION(BlueprintCallable, Category= "Action Functions")
-	void CombatOverlapping(AActor* OverlapActor);
+	UFUNCTION(Category= "Overlap Component")
+	void WeaponHitOpponent(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+	                       bool bFromSweep, const FHitResult& SweepResult);
+	UFUNCTION(BlueprintCallable, Category=" Action Functions")
+	void PlayerAttack(EAttackState playState);
+
+	virtual void ChangeCollision(bool value) override;
+
 #pragma endregion
 
 #pragma region "Locomotion Functions"
 
 public:
-	UFUNCTION(BlueprintPure, Category= "Locomotion Functions")
-	FVector PredictEndLocation();
+	bool GetIsFalling();
+	bool GetHasMovementInput();
+	bool GetIsMoving();
+	float GetSpeed();
 
-private:
+	FRotator GetAimingRotation();
 
 #pragma endregion
 };

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "SoulsProject/GameMode/MainGameMode.h"
 #include "EnemyBase.generated.h"
 
@@ -14,7 +15,7 @@
  * 
  */
 UCLASS()
-class SOULSPROJECT_API AEnemyBase : public ACharacter
+class SOULSPROJECT_API AEnemyBase : public ACharacter, public IWeaponCollision
 {
 	GENERATED_BODY()
 
@@ -30,17 +31,6 @@ public:
 	UStaticMeshComponent* WeaponSlot;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Custom Component")
 	UBoxComponent* WeaponCollision;
-#pragma endregion
-
-#pragma region "Custom Component"
-	
-public:
-	UFUNCTION(BlueprintCallable, Category= "Custom Component")
-	void ChangeCollision(bool valueCollision);
-	UFUNCTION(BlueprintCallable, Category= "Custom Component")
-	void CombatOverlapping(AActor* OverlapActor);
-
-#pragma endregion 
 	
 protected:
 	// Called when the game starts or when spawned
@@ -49,6 +39,16 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+#pragma endregion
+
+#pragma region "Custom Component"
+	
+public:
+	UFUNCTION(Category= "Overlap Component")
+	void WeaponHitOpponent(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+#pragma endregion 
 
 #pragma region "Character In-Game States"
 	
@@ -67,21 +67,27 @@ private:
 
 #pragma endregion
 
-#pragma region "Action Functions"
+#pragma region "Locomotion Functions"
 	
 public:
-	UFUNCTION(BlueprintPure, BlueprintCallable, Category= "Action Functions")
-	bool GetCanAttack() { return bCanAttack; }
-	UFUNCTION(BlueprintCallable, Category= "Action Functions")
-	void SetCanAttack(bool attackValue) { bCanAttack = attackValue; }
 
 	UFUNCTION(BlueprintNativeEvent, Category= "Action Functions")
 	void GetHitByPlayer();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category= "Action Functions")
-	void Attack(UAnimMontage* Montage, float& length);
+	float GetSpeed() { return GetVelocity().Length(); }
+	FRotator GetAimingRotation() { return GetControlRotation(); }
+	bool GetIsFalling() { return GetCharacterMovement()->IsFalling(); }
+	bool GetIsMoving() { return GetSpeed() > 1.0f; }
 private:
-	bool bCanAttack = true;
 
 #pragma endregion
+
+#pragma region "Action Functions"
+	
+public:
+	UFUNCTION(BlueprintCallable, Category= "Attack Functions")
+	void AttackTheOpponent(UAnimMontage* AnimMontage, float& length);
+
+	virtual void ChangeCollision(bool changeValue) override;
+#pragma endregion 
 };

@@ -3,66 +3,61 @@
 
 #include "EnemyAnimInstance.h"
 
-#include "GameFramework/CharacterMovementComponent.h"
-#include "Kismet/KismetMathLibrary.h"
-#include "SoulsProject/Character/Animation/PlayerAnimInstance.h"
-
 void UEnemyAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
 
-	EnemyRef = Cast<AEnemyBase>(TryGetPawnOwner());
-	if (EnemyRef)
+	CharacterRef = Cast<AEnemyBase>(TryGetPawnOwner());
+
+	if(CharacterRef)
 	{
-		MeshRef = EnemyRef->GetMesh();
+		MeshRef = CharacterRef->GetMesh();
+		MovementRef = CharacterRef->GetCharacterMovement();
 	}
 }
 
-void UEnemyAnimInstance::PlayMontage_Implementation(EAttackState playState)
+void UEnemyAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
-	IMontagePlayer::PlayMontage_Implementation(playState);
+	Super::NativeUpdateAnimation(DeltaSeconds);
+	deltaTimeX = DeltaSeconds;
+
+	if(CharacterRef)
+	{
+		SetEssentialData();
+		DetermineLocomotion();
+	}
 }
 
-void UEnemyAnimInstance::DefaulAttack_Implementation()
+void UEnemyAnimInstance::SetMotionStates()
 {
-	IComboSection::DefaulAttack_Implementation();
-	LightAttackSection = DefaultLightAttackSection;
-	HeavyAttackSection = DefaultHeavyAttackSection;
-}
-
-void UEnemyAnimInstance::NextCombo_Implementation(FName LightAttack, FName HeavyAttack)
-{
-	IComboSection::NextCombo_Implementation(LightAttack, HeavyAttack);
-
-	LightAttackSection = LightAttack;
-	HeavyAttackSection = HeavyAttack;
+	CharacterRef->SetLocomotionState(LocomotionState);
+	AbilityState = CharacterRef->GetAbilityState();
+	ActionState = CharacterRef->GetActionState();
 }
 
 void UEnemyAnimInstance::SetEssentialData()
 {
-	if (EnemyRef)
-	{
-		IntegratedCharacterData.currentVelocity = EnemyRef->GetVelocity();
-		IntegratedCharacterData.vCurrentAcceleration = EnemyRef->GetCharacterMovement()->GetCurrentAcceleration();
-		IntegratedCharacterData.currentLastInput = EnemyRef->GetLastMovementInputVector();
-		IntegratedCharacterData.currentMaxSpeed = EnemyRef->GetCharacterMovement()->GetMaxSpeed();
-		IntegratedCharacterData.currentSpeed = IntegratedCharacterData.currentVelocity.Size();
-		IntegratedCharacterData.fCurrentAcceleration = IntegratedCharacterData.vCurrentAcceleration.Size();
+	currentSpeed = CharacterRef->GetSpeed();
+	maxSpeed = MovementRef->GetMaxSpeed();
+	currentAcceleration = MovementRef->GetCurrentAcceleration().Length();
+	maxAcceleration = MovementRef->MaxAcceleration;
+	
+	aimingRotation = CharacterRef->GetAimingRotation();
+	
+	bIsInAir = CharacterRef->GetIsFalling();
+	bIsMoving = CharacterRef->GetIsMoving();
+	bShouldMove = bIsMoving || currentSpeed > 150.0f;
 
-		EnemyRef->SetLocomotionState(LocomotionState);
-		ActionState = EnemyRef->GetActionState();
-		AbilityState = EnemyRef->GetAbilityState();
-	}
-
+	SetMotionStates();
 }
 
 void UEnemyAnimInstance::DetermineLocomotion()
 {
-	if (IntegratedCharacterData.currentVelocity.Length() > 400)
+	if(currentSpeed > 300)
 	{
 		LocomotionState = ELocomotionState::Run;
 	}
-	else if (IntegratedCharacterData.currentVelocity.Length() > 50 && IntegratedCharacterData.currentVelocity.Length() < 400)
+	else if(currentSpeed > 50 && currentSpeed < 300)
 	{
 		LocomotionState = ELocomotionState::Walk;
 	}

@@ -5,9 +5,6 @@
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
 
-//	Animation Structures
-#include "SoulsProject/Character/Animation/Data/AnimData.h"
-
 //	Interfaces which has been created to use on Combat Mechanics
 #include "SoulsProject/Character/Interfaces/ComboSection.h"
 #include "SoulsProject/Character/Interfaces/MontagePlayer.h"
@@ -22,71 +19,48 @@
 
 
 UCLASS()
-class SOULSPROJECT_API UEnemyAnimInstance : public UAnimInstance, public IMontagePlayer, public IComboSection
+class SOULSPROJECT_API UEnemyAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
-	
+
 public:
-	UFUNCTION(BlueprintCallable, Category= "Locomotion")
-	void SetEssentialData();
-	UFUNCTION(BlueprintCallable, Category= "Locomotion")
-	void DetermineLocomotion();
-	
-protected:
 	virtual void NativeInitializeAnimation() override;
+	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
-#pragma region "Interface Functions"
-	
-	virtual void PlayMontage_Implementation(EAttackState playState) override;
-	
-	virtual void DefaulAttack_Implementation() override;
-	
-	virtual void NextCombo_Implementation(FName LightAttack, FName HeavyAttack) override;
-
-#pragma endregion 
-
-#pragma region "Cast Data"
-
-	UPROPERTY(BlueprintReadOnly, Category= "Base System")
-	AEnemyBase* EnemyRef;
-
-	UPROPERTY(BlueprintReadOnly, Category= "Base System")
-	USkeletalMeshComponent* MeshRef;
-
-#pragma endregion
+protected:
 
 #pragma region "Movement States"
 
+public:
 	UPROPERTY(BlueprintReadOnly, Category= "Locomotion")
 	ELocomotionState LocomotionState;
-
 	UPROPERTY(BlueprintReadOnly, Category= "Locomotion")
 	EActionState ActionState;
-
 	UPROPERTY(BlueprintReadOnly, Category= "Locomotion")
 	EAbilityState AbilityState;
-	
-#pragma endregion
 
-#pragma region "Combo Section Data"
-
-	UPROPERTY(BlueprintReadWrite, Category= "Combo Mechanics")
-	FName LightAttackSection;
-
-	UPROPERTY(BlueprintReadWrite, Category= "Combo Mechanics")
-	FName HeavyAttackSection;
-
-	UPROPERTY(BlueprintReadWrite, Category= "Combo Mechanics")
-	FName DefaultLightAttackSection = "Light1";
-
-	UPROPERTY(BlueprintReadWrite, Category= "Combo Mechanics")
-	FName DefaultHeavyAttackSection = "Heavy1";
-
-#pragma endregion
-
-	UPROPERTY(BlueprintReadOnly, Category= "Locomotion")
-	bool bAlreadyMoving;
-
+	void SetMotionStates();
+	void SetEssentialData();
+	void DetermineLocomotion();
 private:
-	FAnimationData IntegratedCharacterData;
+	float currentSpeed, maxSpeed, currentAcceleration, maxAcceleration;
+	FRotator aimingRotation;
+
+	bool bIsInAir, bIsMoving, bShouldMove;
+
+	float deltaTimeX;
+
+#pragma endregion
+
+#pragma region "Cast Data"
+	
+private:
+	UPROPERTY()
+	AEnemyBase* CharacterRef;
+	UPROPERTY()
+	UCharacterMovementComponent* MovementRef;
+	UPROPERTY()
+	USkeletalMeshComponent* MeshRef;
+
+#pragma endregion
 };

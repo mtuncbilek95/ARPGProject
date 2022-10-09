@@ -31,9 +31,9 @@ void AEnemyBase::ChangeCollision(bool valueCollision)
 	}
 }
 
-void AEnemyBase::CombatOverlapping(AActor* OverlapActor)
+void AEnemyBase::WeaponHitOpponent(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	APlayerCharacter* Player = Cast<APlayerCharacter>(OverlapActor);
+	APlayerCharacter* Player = Cast<APlayerCharacter>(OtherActor);
 	if(Player)
 	{
 		GEngine->AddOnScreenDebugMessage(0, 5.0f, FColor::Cyan, "Player got hurt");
@@ -45,6 +45,11 @@ void AEnemyBase::CombatOverlapping(AActor* OverlapActor)
 void AEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if(WeaponCollision)
+	{
+		WeaponCollision->OnComponentBeginOverlap.AddDynamic(this, &AEnemyBase::WeaponHitOpponent);
+	}
 }
 
 // Called every frame
@@ -53,8 +58,10 @@ void AEnemyBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AEnemyBase::Attack_Implementation(UAnimMontage* Montage, float& length)
+void AEnemyBase::AttackTheOpponent(UAnimMontage* AnimMontage, float& length)
 {
+	PlayAnimMontage(AnimMontage);
+	length = AnimMontage->GetPlayLength();
 }
 
 void AEnemyBase::GetHitByPlayer_Implementation()

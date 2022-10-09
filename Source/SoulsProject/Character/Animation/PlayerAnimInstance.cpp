@@ -14,68 +14,48 @@ void UPlayerAnimInstance::NativeInitializeAnimation()
 	if (CharacterRef)
 	{
 		MeshRef = CharacterRef->GetMesh();
+		MovementRef = CharacterRef->GetCharacterMovement();
+	}
+
+	DefaulAttack();
+}
+
+void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
+{
+	Super::NativeUpdateAnimation(DeltaSeconds);
+
+	deltaTimeX = DeltaSeconds;
+	
+	if (CharacterRef && MovementRef)
+	{
+		SetEssentialData();
+		DetermineLocomotion();
 	}
 }
 
-void UPlayerAnimInstance::PlayMontage_Implementation(EAttackState playState)
-{
-	IMontagePlayer::PlayMontage_Implementation(playState);
-	AttackSetter(false);
-}
-
-void UPlayerAnimInstance::DefaulAttack_Implementation()
-{
-	IComboSection::DefaulAttack_Implementation();
-	LightAttackSection = DefaultLightAttackSection;
-	HeavyAttackSection = DefaultHeavyAttackSection;
-}
-
-void UPlayerAnimInstance::NextCombo_Implementation(FName LightAttack, FName HeavyAttack)
-{
-	IComboSection::NextCombo_Implementation(LightAttack, HeavyAttack);
-
-	LightAttackSection = LightAttack;
-	HeavyAttackSection = HeavyAttack;
-}
-
-void UPlayerAnimInstance::AttackSetter_Implementation(bool bCanAttack)
-{
-	IMontagePlayer::AttackSetter_Implementation(bCanAttack);
-	CharacterRef->SetCanAttack(bCanAttack);
-}
 
 void UPlayerAnimInstance::SetEssentialData()
 {
-	if (CharacterRef)
-	{
-		IntegratedCharacterData.currentVelocity = CharacterRef->GetVelocity();
-		IntegratedCharacterData.vCurrentAcceleration = CharacterRef->GetCharacterMovement()->GetCurrentAcceleration();
-		IntegratedCharacterData.currentLastInput = CharacterRef->GetLastMovementInputVector();
-		IntegratedCharacterData.currentMaxSpeed = CharacterRef->GetCharacterMovement()->GetMaxSpeed();
-		IntegratedCharacterData.currentSpeed = IntegratedCharacterData.currentVelocity.Size();
-		IntegratedCharacterData.fCurrentAcceleration = IntegratedCharacterData.vCurrentAcceleration.Size();
-
-		CharacterRef->SetLocomotionState(LocomotionState);
-		
-		ActionState = CharacterRef->GetActionState();
-		AbilityState = CharacterRef->GetAbilityState();
-		FocusState = CharacterRef->GetFocusState();
-
-		inputFB = CharacterRef->GetInputAxisValue("FB");
-		inputLR = CharacterRef->GetInputAxisValue("LR");
-		turnValue = CharacterRef->GetInputAxisValue("Turn");
-		lookUpValue = CharacterRef->GetInputAxisValue("LookUp");
-		absoluteRotYaw = CharacterRef->GetBaseAimRotation().Yaw-CharacterRef->GetActorRotation().Yaw;
-		bAlreadyMoving = IntegratedCharacterData.currentSpeed > 50;
-	}
+	currentSpeed = CharacterRef->GetSpeed();
+	maxSpeed = MovementRef->GetMaxSpeed();
+	currentAcceleration = MovementRef->GetCurrentAcceleration().Length();
+	maxAcceleration = MovementRef->MaxAcceleration;
 	
+	aimingRotation = CharacterRef->GetAimingRotation();
+	
+	bIsInAir = CharacterRef->GetIsFalling();
+	bHasMovementInput = CharacterRef->GetHasMovementInput();
+	bIsMoving = CharacterRef->GetIsMoving();
+	bShouldMove = (bHasMovementInput && bIsMoving) || currentSpeed > 150.0f;
+
+	SetMotionStates();
 }
 
 void UPlayerAnimInstance::DetermineLocomotion()
 {
 	bool bInputChange = UKismetMathLibrary::Dot_VectorVector(
-		UKismetMathLibrary::Normal(IntegratedCharacterData.vCurrentAcceleration),
-		UKismetMathLibrary::Normal(IntegratedCharacterData.currentVelocity)) < -0.2f;
+		UKismetMathLibrary::Normal(MovementRef->GetCurrentAcceleration()),
+		UKismetMathLibrary::Normal(CharacterRef->GetVelocity())) < -0.2f;
 
 	if (bInputChange)
 	{
@@ -108,24 +88,41 @@ void UPlayerAnimInstance::DetermineLocomotion()
 	}
 }
 
-bool UPlayerAnimInstance::CheckIfTurnInPlace()
+bool UPlayerAnimInstance::CalculateThreshold(float speed, float currentMaxSpeed, float currentMaxAcceleration)
 {
-	if(CharacterRef)
-	{
-		FRotator absoluteRotator = CharacterRef->GetBaseAimRotation()-CharacterRef->GetActorRotation();
-		return FMath::Abs(inputLR) + FMath::Abs(inputFB) == 0 && LocomotionState == ELocomotionState::Idle && turnValue == 0.0f;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-bool UPlayerAnimInstance::CalculateThreshold(float speed, float maxSpeed, float maxAcceleration)
-{
-	bool velocityCheck = IntegratedCharacterData.currentSpeed > speed;
-	bool maxSpeedCheck = IntegratedCharacterData.currentMaxSpeed > maxSpeed;
-	bool accelerationCheck = IntegratedCharacterData.fCurrentAcceleration > maxAcceleration;
+	bool velocityCheck = currentSpeed > speed;
+	bool maxSpeedCheck = maxSpeed > currentMaxSpeed;
+	bool accelerationCheck = currentAcceleration > currentMaxAcceleration;
 
 	return velocityCheck && maxSpeedCheck && accelerationCheck;
+}
+
+void UPlayerAnimInstance::SetMotionStates()
+{
+	CharacterRef->SetLocomotionState(LocomotionState);
+
+	ActionState = CharacterRef->GetActionState();
+	AbilityState = CharacterRef->GetAbilityState();
+	FocusState = CharacterRef->GetFocusState();
+}
+
+void UPlayerAnimInstance::PlayMontage_Implementation(EAttackState playState)
+{
+	IMontagePlayer::PlayMontage_Implementation(playState);
+	SetAttack(false);
+	Execute_PlayMontage(this, playState);
+}
+void UPlayerAnimInstance::DefaulAttack()
+{
+	LightAttackSection = DefaultLightAttackSection;
+	HeavyAttackSection = DefaultHeavyAttackSection;
+}
+void UPlayerAnimInstance::NextCombo(FName LightAttack, FName HeavyAttack)
+{
+	LightAttackSection = LightAttack;
+	HeavyAttackSection = HeavyAttack;
+}
+void UPlayerAnimInstance::SetAttack(bool bCanAttack)
+{
+	CharacterRef->SetCanAttack(bCanAttack);
 }

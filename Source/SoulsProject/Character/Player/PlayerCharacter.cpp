@@ -9,6 +9,7 @@
 
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "SoulsProject/Character/Interfaces/MontagePlayer.h"
 #include "SoulsProject/Enemy/Base/EnemyBase.h"
 
 // Sets default values
@@ -17,39 +18,21 @@ APlayerCharacter::APlayerCharacter()
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
-	SpringArm->SetupAttachment(GetRootComponent());
-	SpringArm->SetRelativeLocation(FVector(0, 0, 70));
-	SpringArm->bUsePawnControlRotation = true;
-	SpringArm->TargetArmLength = 450;
-
-	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-	Camera->SetupAttachment(SpringArm);
-
-	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
-	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
-
-	GetCharacterMovement()->bOrientRotationToMovement = true;
-	GetCharacterMovement()->MaxWalkSpeed = 450;
-
-	bUseControllerRotationYaw = false;
-
-	WeaponSlot = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
-	WeaponSlot->SetupAttachment(GetMesh(), "hand_rSocket");
-	WeaponCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("Weapon Collision"));
-	WeaponCollision->SetupAttachment(WeaponSlot);
-
-	VisionPlane = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Visual Plane"));
-	VisionPlane->SetupAttachment(Camera);
-
-	VisionPlane->SetRelativeLocation(FVector(60,0,0));
-	VisionPlane->SetRelativeRotation(FRotator(0,90,-90));
+	SetupSpringArm();
+	SetupCamera();
+	SetupCharacter();
+	SetupWeapon();
 }
 
 // Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if(WeaponCollision)
+	{
+		WeaponCollision->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::WeaponHitOpponent);
+	}
 }
 
 // Called every frame
@@ -60,21 +43,23 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 void APlayerCharacter::Sprint(EExecuteBranch Branches)
 {
-	switch (Branches)
+	if(FocusState == EFocusState::FreeState)
 	{
-	case EExecuteBranch::Pressed:
-		if (LocomotionState != ELocomotionState::Walk)
+		switch (Branches)
 		{
-			GetCharacterMovement()->MaxWalkSpeed = 620;
+		case EExecuteBranch::Pressed:
+			if (LocomotionState != ELocomotionState::Walk)
+			{
+				GetCharacterMovement()->MaxWalkSpeed = 620;
+			}
+			break;
+		case EExecuteBranch::Released:
+			GetCharacterMovement()->MaxWalkSpeed = 450;
+			break;
+		default: break;
 		}
-		break;
-	case EExecuteBranch::Released:
-		GetCharacterMovement()->MaxWalkSpeed = 450;
-		break;
-	default: break;
 	}
 }
-
 void APlayerCharacter::Walk(EExecuteBranch Branches)
 {
 	switch (Branches)
@@ -82,7 +67,7 @@ void APlayerCharacter::Walk(EExecuteBranch Branches)
 	case EExecuteBranch::Pressed:
 		if (LocomotionState != ELocomotionState::Sprint)
 		{
-			GetCharacterMovement()->MaxWalkSpeed = 170;
+			GetCharacterMovement()->MaxWalkSpeed = 150;
 		}
 		break;
 	case EExecuteBranch::Released:
@@ -100,7 +85,6 @@ void APlayerCharacter::MoveCharacter(float forwardInput, float rightInput)
 	AddMovementInput(UKismetMathLibrary::GetForwardVector(directionRotation), forwardInput);
 	AddMovementInput(UKismetMathLibrary::GetRightVector(directionRotation), rightInput);
 }
-
 void APlayerCharacter::RotateCharacter(float axisTurn, float axisLook)
 {
 	if (!hitActor)
@@ -109,7 +93,6 @@ void APlayerCharacter::RotateCharacter(float axisTurn, float axisLook)
 		AddControllerPitchInput(axisLook);
 	}
 }
-
 FVector APlayerCharacter::CalculateDirectionVector()
 {
 	if (FMath::Abs(GetInputAxisValue("FB")) + FMath::Abs(GetInputAxisValue("LR")) > 0)
@@ -198,9 +181,9 @@ void APlayerCharacter::ChangeCollision(bool value)
 	}
 }
 
-void APlayerCharacter::CombatOverlapping(AActor* OverlapActor)
+void APlayerCharacter::WeaponHitOpponent(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	AEnemyBase* Enemy = Cast<AEnemyBase>(OverlapActor);
+	AEnemyBase* Enemy = Cast<AEnemyBase>(OtherActor);
 	if(Enemy)
 	{
 		GEngine->AddOnScreenDebugMessage(0, 5.0f, FColor::Cyan, "Enemy got hurt");
@@ -208,11 +191,77 @@ void APlayerCharacter::CombatOverlapping(AActor* OverlapActor)
 	}
 }
 
-FVector APlayerCharacter::PredictEndLocation()
+void APlayerCharacter::PlayerAttack(EAttackState playState)
 {
-	return FVector::Zero();
+	IMontagePlayer* Interface = Cast<IMontagePlayer>(GetMesh()->GetAnimInstance());
+	if(Interface && bCanAttack)
+	{
+		Interface->PlayMontage_Implementation(playState);
+	}
 }
 
 void APlayerCharacter::GetHitByEnemy_Implementation()
 {
 }
+
+#pragma region "Getter & Setter"
+
+ELocomotionState APlayerCharacter::GetLocomotionState() { return LocomotionState; }
+EActionState APlayerCharacter::GetActionState() { return ActionState; }
+EAbilityState APlayerCharacter::GetAbilityState() { return AbilityState; }
+EFocusState APlayerCharacter::GetFocusState() { return FocusState; }
+
+void APlayerCharacter::SetLocomotionState(ELocomotionState stateValue) { LocomotionState = stateValue; }
+void APlayerCharacter::SetActionState(EActionState stateValue) { ActionState = stateValue; }
+void APlayerCharacter::SetAbilityState(EAbilityState stateValue) { AbilityState = stateValue; }
+void APlayerCharacter::SetFocusState(EFocusState stateValue) { FocusState = stateValue; }
+
+bool APlayerCharacter::GetCanAttack() { return bCanAttack; }
+void APlayerCharacter::SetCanAttack(bool attackValue) { bCanAttack = attackValue; }
+
+/* <---------Locomotion Values---------> */
+
+bool APlayerCharacter::GetIsFalling() { return GetCharacterMovement()->IsFalling(); }
+bool APlayerCharacter::GetHasMovementInput() { return (GetCharacterMovement()->GetCurrentAcceleration().Length() / GetCharacterMovement()->MaxAcceleration) > 0.0f; }
+bool APlayerCharacter::GetIsMoving() { return GetSpeed() > 1.0f; }
+float APlayerCharacter::GetSpeed() { return GetVelocity().Length(); }
+FRotator APlayerCharacter::GetAimingRotation() { return GetControlRotation(); }
+
+/* <---------Consturctor Setup---------> */
+
+void APlayerCharacter::SetupSpringArm()
+{
+	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
+	SpringArm->SetupAttachment(GetRootComponent());
+	SpringArm->SetRelativeLocation(FVector(0, 0, 70));
+	SpringArm->bUsePawnControlRotation = true;
+	SpringArm->TargetArmLength = 350;
+}
+void APlayerCharacter::SetupCamera()
+{
+	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	Camera->SetupAttachment(SpringArm);
+	VisionPlane = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Visual Plane"));
+	VisionPlane->SetupAttachment(Camera);
+	VisionPlane->SetRelativeLocation(FVector(60,0,0));
+	VisionPlane->SetRelativeRotation(FRotator(0,90,-90));
+}
+void APlayerCharacter::SetupWeapon()
+{
+	WeaponSlot = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
+	WeaponSlot->SetupAttachment(GetMesh(), "hand_rSocket");
+	WeaponCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("Weapon Collision"));
+	WeaponCollision->SetupAttachment(WeaponSlot);
+}
+void APlayerCharacter::SetupCharacter()
+{
+	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
+	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->MaxWalkSpeed = 450;
+	bUseControllerRotationYaw = false;
+}
+
+#pragma endregion 
+
+
