@@ -31,6 +31,7 @@ void AEnemyBase::BeginPlay()
 	Super::BeginPlay();
 	WeaponCollision->OnComponentBeginOverlap.AddDynamic(this, &AEnemyBase::WeaponHitOpponent);
 	WeaponCollision->OnComponentEndOverlap.AddDynamic(this, &AEnemyBase::WeaponRelease);
+	HealthComponent->OnDamageTakenDelegate.AddUniqueDynamic(this, &AEnemyBase::Execute_TakeDamage);
 }
 
 // Called every frame
@@ -51,22 +52,29 @@ void AEnemyBase::ChangeCollision(bool valueCollision)
 	}
 }
 
+void AEnemyBase::Execute_TakeDamage()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan,
+		(this->GetName() + " Health: " + UKismetStringLibrary::Conv_IntToString(HealthComponent->GetHealth())));
+}
+
 void AEnemyBase::WeaponHitOpponent(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp,
                                    int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	TSubclassOf<UDamageType> dmgType;
 	APlayerCharacter* Player = Cast<APlayerCharacter>(OtherActor);
-	if (Player)
+	if (Player && !bWeaponOverlapped)
 	{
-		debugNumber ++;
-		GEngine->AddOnScreenDebugMessage(0, 5.0f, FColor::Cyan, ("Hit " + UKismetStringLibrary::Conv_IntToString(debugNumber)));
-		UGameplayStatics::ApplyDamage(Player, FMath::RandRange(10,15),GetController(),this, dmgType);
+		UGameplayStatics::ApplyDamage(Player, FMath::RandRange(10, 15), GetController(), this, dmgType);
+		bWeaponOverlapped = true;
+		UE_LOG(LogTemp, Warning, TEXT("Hit Collision"));
 	}
 }
 
 void AEnemyBase::WeaponRelease(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-
+	APlayerCharacter* Player = Cast<APlayerCharacter>(OtherActor);
+	if (Player) bWeaponOverlapped = false;
 }
 
 void AEnemyBase::AttackTheOpponent(UAnimMontage* AnimMontage, float& length)

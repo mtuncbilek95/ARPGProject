@@ -44,6 +44,7 @@ public:
 	UBoxComponent* WeaponCollision;
 
 protected:
+	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	// Called every frame
@@ -137,10 +138,14 @@ public:
 	UFUNCTION(Category= "Overlap Component")
 	void WeaponHitOpponent(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	                       bool bFromSweep, const FHitResult& SweepResult);
+	UFUNCTION(Category= "Overlap Component")
+	void WeaponRelease(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 	UFUNCTION(BlueprintCallable, Category=" Action Functions")
 	void PlayerAttack(EAttackState playState);
 
 	virtual void ChangeCollision(bool value) override;
+private:
+	bool bWeaponOverlapped = false;
 
 #pragma endregion
 
@@ -161,7 +166,10 @@ public:
 public:
 	UFUNCTION()
 	void Execute_TakeDamage();
-private:
 
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* A;
+private:
+	
 #pragma endregion 
 };

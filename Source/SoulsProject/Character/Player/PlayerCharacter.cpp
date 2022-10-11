@@ -7,8 +7,10 @@
 #include "Components/CapsuleComponent.h"
 
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/KismetStringLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "SoulsProject/Character/Interfaces/MontagePlayer.h"
 #include "SoulsProject/Enemy/Base/EnemyBase.h"
@@ -25,12 +27,15 @@ APlayerCharacter::APlayerCharacter()
 	SetupWeapon();
 }
 
+
+
 // Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	WeaponCollision->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::WeaponHitOpponent);
-	HealthComponent->OnDamageTakenDelegate.AddUniqueDynamic(this, &APlayerCharacter::Execute_TakeDamage);
+	//WeaponCollision->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::WeaponHitOpponent);
+	//WeaponCollision->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::WeaponRelease);
+	HealthComponent->OnDamageTakenDelegate.AddDynamic(this, &APlayerCharacter::Execute_TakeDamage);
 }
 
 // Called every frame
@@ -172,21 +177,31 @@ void APlayerCharacter::ChangeCollision(bool value)
 	if(value)
 	{
 		WeaponCollision->SetCollisionProfileName("Weapon");
+		UE_LOG(LogTemp, Warning, TEXT("Open Collision"));
 	}
 	else
 	{
 		WeaponCollision->SetCollisionProfileName("NoCollision");
+		UE_LOG(LogTemp, Warning, TEXT("Closed Collision"));
 	}
 }
 
 void APlayerCharacter::WeaponHitOpponent(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Player hit the Enemy"))
+	//TSubclassOf<UDamageType> dmgType;
 	AEnemyBase* Enemy = Cast<AEnemyBase>(OtherActor);
 	if(Enemy)
 	{
-		GEngine->AddOnScreenDebugMessage(0, 5.0f, FColor::Cyan, "Enemy got hurt");
-		Enemy->GetHitByPlayer();
+		/*UGameplayStatics::ApplyDamage(Enemy, FMath::RandRange(10, 15), GetController(), this, dmgType);
+		bWeaponOverlapped = true;*/
+		UE_LOG(LogTemp, Warning, TEXT("Player hit the Enemy"))
 	}
+}
+
+void APlayerCharacter::WeaponRelease(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	bWeaponOverlapped = false;
 }
 
 void APlayerCharacter::PlayerAttack(EAttackState playState)
@@ -200,7 +215,10 @@ void APlayerCharacter::PlayerAttack(EAttackState playState)
 
 void APlayerCharacter::Execute_TakeDamage()
 {
-	
+	PlayAnimMontage(A);
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan,
+		("Player Health: " + UKismetStringLibrary::Conv_IntToString(HealthComponent->GetHealth())));
+
 }
 
 

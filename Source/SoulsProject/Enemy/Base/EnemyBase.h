@@ -56,7 +56,7 @@ public:
 	void WeaponRelease(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 private:
-	bool bOverlapped = false;
+	bool bWeaponOverlapped = false;
 #pragma endregion
 
 #pragma region "Character In-Game States"
@@ -99,4 +99,14 @@ public:
 
 	int debugNumber = 0;
 #pragma endregion
+
+	
+#pragma region "Life Functions"
+
+public:
+	UFUNCTION()
+	void Execute_TakeDamage();
+private:
+
+#pragma endregion 
 };

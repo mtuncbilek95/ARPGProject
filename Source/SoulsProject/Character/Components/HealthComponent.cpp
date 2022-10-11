@@ -28,7 +28,6 @@ void UHealthComponent::ComponentTakeDamge(AActor* DamagedActor, float Damage, co
 	{
 		currentHealthAmount -= Damage;
 		OnDamageTakenDelegate.Broadcast();
-		UE_LOG(LogTemp, Warning, TEXT("Executed"))
 	}
 }
 
@@ -38,3 +37,5 @@ void UHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
+
+float UHealthComponent::GetHealth() { return currentHealthAmount; }

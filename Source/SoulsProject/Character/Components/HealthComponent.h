@@ -30,7 +30,8 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	float GetHealth();
 private:
 	float currentHealthAmount;
-	float maximumHealthAmount;
+	float maximumHealthAmount = 100;
 };
