@@ -12,8 +12,11 @@ void UNS_WeaponCollision::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSeq
 	IWeaponCollision* Interface = Cast<IWeaponCollision>(MeshComp->GetOwner());
 	if(Interface)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Collision Activated"))
 		Interface->ChangeCollision(true);
 	}
+
+
 }
 
 void UNS_WeaponCollision::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)

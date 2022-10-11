@@ -3,6 +3,7 @@
 
 #include "PlayerCharacter.h"
 
+#include "SWarningOrErrorBox.h"
 #include "Components/CapsuleComponent.h"
 
 #include "GameFramework/CharacterMovementComponent.h"
@@ -28,11 +29,8 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if(WeaponCollision)
-	{
-		WeaponCollision->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::WeaponHitOpponent);
-	}
+	WeaponCollision->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::WeaponHitOpponent);
+	HealthComponent->OnDamageTakenDelegate.AddUniqueDynamic(this, &APlayerCharacter::Execute_TakeDamage);
 }
 
 // Called every frame
@@ -200,6 +198,12 @@ void APlayerCharacter::PlayerAttack(EAttackState playState)
 	}
 }
 
+void APlayerCharacter::Execute_TakeDamage()
+{
+	
+}
+
+
 void APlayerCharacter::GetHitByEnemy_Implementation()
 {
 }
@@ -255,6 +259,9 @@ void APlayerCharacter::SetupWeapon()
 }
 void APlayerCharacter::SetupCharacter()
 {
+	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health Component"));
+	HealthComponent->RegisterComponent();
+	
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
 	GetCharacterMovement()->bOrientRotationToMovement = true;

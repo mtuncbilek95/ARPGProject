@@ -14,6 +14,7 @@
 #include "SoulsProject/Character/States/ExecutionBranches.h"
 
 //	Movement States Enum Classes
+#include "SoulsProject/Character/Components/HealthComponent.h"
 #include "SoulsProject/Character/Interfaces/WeaponCollision.h"
 #include "SoulsProject/Character/States/MotionStates.h"
 #include "PlayerCharacter.generated.h"
@@ -26,22 +27,20 @@ class SOULSPROJECT_API APlayerCharacter : public ACharacter, public IWeaponColli
 #pragma region "Main Component"
 
 public:
-	void SetupSpringArm();
-	void SetupCamera();
-	void SetupWeapon();
-	void SetupCharacter();
 	//	Sets default values for this character's properties
 	APlayerCharacter();
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category= "Character Component")
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Character Components")
+	UHealthComponent* HealthComponent;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category= "Character Components")
 	USpringArmComponent* SpringArm;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category= "Character Component")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category= "Character Components")
 	UCameraComponent* Camera;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category= "Character Component")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category= "Character Components")
 	UStaticMeshComponent* VisionPlane;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Character Component")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Character Components")
 	UStaticMeshComponent* WeaponSlot;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Character Component")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Character Components")
 	UBoxComponent* WeaponCollision;
 
 protected:
@@ -65,6 +64,10 @@ public:
 	void RotateCharacter(float axisTurn, float axisLook);
 
 private:
+	void SetupSpringArm();
+	void SetupCamera();
+	void SetupWeapon();
+	void SetupCharacter();
 	void CalculateCameraLength(float speedValue);
 
 #pragma endregion
@@ -152,4 +155,13 @@ public:
 	FRotator GetAimingRotation();
 
 #pragma endregion
+
+#pragma region "Life Functions"
+
+public:
+	UFUNCTION()
+	void Execute_TakeDamage();
+private:
+
+#pragma endregion 
 };
