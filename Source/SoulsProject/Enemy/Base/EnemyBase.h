@@ -16,7 +16,7 @@
  * 
  */
 UCLASS()
-class SOULSPROJECT_API AEnemyBase : public ACharacter, public IWeaponCollision
+class SOULSPROJECT_API AEnemyBase : public ACharacter
 {
 	GENERATED_BODY()
 
@@ -94,8 +94,6 @@ private:
 public:
 	UFUNCTION(BlueprintCallable, Category= "Attack Functions")
 	void AttackTheOpponent(UAnimMontage* AnimMontage, float& length);
-
-	virtual void ChangeCollision(bool changeValue) override;
 
 	int debugNumber = 0;
 #pragma endregion

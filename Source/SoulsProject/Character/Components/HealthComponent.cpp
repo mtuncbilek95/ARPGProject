@@ -28,6 +28,7 @@ void UHealthComponent::ComponentTakeDamge(AActor* DamagedActor, float Damage, co
 	{
 		currentHealthAmount -= Damage;
 		OnDamageTakenDelegate.Broadcast();
+		UE_LOG(LogTemp, Warning, TEXT("Enemy Health: %f"), currentHealthAmount);
 	}
 }
 

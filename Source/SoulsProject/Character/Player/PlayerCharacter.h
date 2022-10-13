@@ -15,12 +15,11 @@
 
 //	Movement States Enum Classes
 #include "SoulsProject/Character/Components/HealthComponent.h"
-#include "SoulsProject/Character/Interfaces/WeaponCollision.h"
 #include "SoulsProject/Character/States/MotionStates.h"
 #include "PlayerCharacter.generated.h"
 
 UCLASS()
-class SOULSPROJECT_API APlayerCharacter : public ACharacter, public IWeaponCollision
+class SOULSPROJECT_API APlayerCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
@@ -41,8 +40,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Character Components")
 	UStaticMeshComponent* WeaponSlot;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Character Components")
-	UBoxComponent* WeaponCollision;
-
+	USceneComponent* WeaponB;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Character Components")
+	USceneComponent* WeaponT;
 protected:
 	
 	// Called when the game starts or when spawned
@@ -114,10 +114,8 @@ public:
 	FORCEINLINE void SetAbilityState(EAbilityState stateValue);
 	FORCEINLINE EFocusState GetFocusState();
 	FORCEINLINE void SetFocusState(EFocusState stateValue);
-
 	UFUNCTION(BlueprintPure, BlueprintCallable, Category= "Custom Functions")
 	FORCEINLINE bool GetCanAttack();
-
 	UFUNCTION(BlueprintCallable, Category= "Custom Functions")
 	FORCEINLINE void SetCanAttack(bool attackValue);
 
@@ -127,7 +125,7 @@ private:
 	EAbilityState AbilityState = EAbilityState::GroundState;
 	EFocusState FocusState = EFocusState::FreeState;
 	bool bCanAttack = true;
-
+	FVector NextTop,FirstTop,NextBot,FirstBot;
 #pragma endregion
 
 #pragma region "Action Functions"
@@ -138,12 +136,11 @@ public:
 	UFUNCTION(Category= "Overlap Component")
 	void WeaponHitOpponent(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
 	                       bool bFromSweep, const FHitResult& SweepResult);
-	UFUNCTION(Category= "Overlap Component")
-	void WeaponRelease(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 	UFUNCTION(BlueprintCallable, Category=" Action Functions")
 	void PlayerAttack(EAttackState playState);
 
-	virtual void ChangeCollision(bool value) override;
+	void TraceWeapon();
+	bool bCanActiveTrace;
 private:
 	bool bWeaponOverlapped = false;
 

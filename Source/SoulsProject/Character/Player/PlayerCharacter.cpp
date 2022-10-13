@@ -33,8 +33,6 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	//WeaponCollision->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::WeaponHitOpponent);
-	//WeaponCollision->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::WeaponRelease);
 	HealthComponent->OnDamageTakenDelegate.AddDynamic(this, &APlayerCharacter::Execute_TakeDamage);
 }
 
@@ -42,6 +40,11 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	FirstBot = WeaponB->GetComponentLocation();
+	FirstTop = WeaponT->GetComponentLocation();
+	TraceWeapon();
+	NextBot = WeaponB->GetComponentLocation();
+	NextTop = WeaponT->GetComponentLocation();
 }
 
 void APlayerCharacter::Sprint(EExecuteBranch Branches)
@@ -172,20 +175,6 @@ void APlayerCharacter::LockingProps(bool bIsPlayerLocked)
 	bIsPlayerLocked ? SetFocusState(EFocusState::FocusState) : SetFocusState(EFocusState::FreeState);
 }
 
-void APlayerCharacter::ChangeCollision(bool value)
-{
-	if(value)
-	{
-		WeaponCollision->SetCollisionProfileName("Weapon");
-		UE_LOG(LogTemp, Warning, TEXT("Open Collision"));
-	}
-	else
-	{
-		WeaponCollision->SetCollisionProfileName("NoCollision");
-		UE_LOG(LogTemp, Warning, TEXT("Closed Collision"));
-	}
-}
-
 void APlayerCharacter::WeaponHitOpponent(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Player hit the Enemy"))
@@ -199,17 +188,32 @@ void APlayerCharacter::WeaponHitOpponent(class UPrimitiveComponent* OverlappedCo
 	}
 }
 
-void APlayerCharacter::WeaponRelease(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	bWeaponOverlapped = false;
-}
-
 void APlayerCharacter::PlayerAttack(EAttackState playState)
 {
 	IMontagePlayer* Interface = Cast<IMontagePlayer>(GetMesh()->GetAnimInstance());
 	if(Interface && bCanAttack)
 	{
 		Interface->PlayMontage_Implementation(playState);
+	}
+}
+
+void APlayerCharacter::TraceWeapon()
+{
+	FHitResult HitResult;
+	if(bCanActiveTrace)
+	{
+		TArray<AActor*> ActorsToIgnore;
+		ActorsToIgnore.Add(this);
+		UKismetSystemLibrary::LineTraceSingle(GetWorld(), FirstBot, NextBot,ETraceTypeQuery::TraceTypeQuery3,false,ActorsToIgnore,EDrawDebugTrace::ForDuration,HitResult,true);
+		UKismetSystemLibrary::LineTraceSingle(GetWorld(), FirstTop, NextTop,ETraceTypeQuery::TraceTypeQuery3,false,ActorsToIgnore,EDrawDebugTrace::ForDuration,HitResult,true);
+		UKismetSystemLibrary::LineTraceSingle(GetWorld(),NextTop , FirstBot,ETraceTypeQuery::TraceTypeQuery3,false,ActorsToIgnore,EDrawDebugTrace::ForDuration,HitResult,true);
+	}
+
+	if(!bWeaponOverlapped)
+	{
+		TSubclassOf<UDamageType> dmgType;
+		UGameplayStatics::ApplyDamage(HitResult.GetActor(), FMath::RandRange(10, 15), GetController(), this, dmgType);
+		bWeaponOverlapped = true;
 	}
 }
 
@@ -272,8 +276,10 @@ void APlayerCharacter::SetupWeapon()
 {
 	WeaponSlot = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
 	WeaponSlot->SetupAttachment(GetMesh(), "hand_rSocket");
-	WeaponCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("Weapon Collision"));
-	WeaponCollision->SetupAttachment(WeaponSlot);
+	WeaponB = CreateDefaultSubobject<USceneComponent>(TEXT("WeaponBottom"));
+	WeaponB->SetupAttachment(WeaponSlot, "WeaponRoot");
+	WeaponT = CreateDefaultSubobject<USceneComponent>(TEXT("WeaponTop"));
+	WeaponT->SetupAttachment(WeaponSlot, "WeaponTop");
 }
 void APlayerCharacter::SetupCharacter()
 {

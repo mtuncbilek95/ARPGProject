@@ -30,7 +30,6 @@ void AEnemyBase::BeginPlay()
 {
 	Super::BeginPlay();
 	WeaponCollision->OnComponentBeginOverlap.AddDynamic(this, &AEnemyBase::WeaponHitOpponent);
-	WeaponCollision->OnComponentEndOverlap.AddDynamic(this, &AEnemyBase::WeaponRelease);
 	HealthComponent->OnDamageTakenDelegate.AddUniqueDynamic(this, &AEnemyBase::Execute_TakeDamage);
 }
 
@@ -38,18 +37,6 @@ void AEnemyBase::BeginPlay()
 void AEnemyBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-}
-
-void AEnemyBase::ChangeCollision(bool valueCollision)
-{
-	if (valueCollision)
-	{
-		WeaponCollision->SetCollisionProfileName("Weapon");
-	}
-	else
-	{
-		WeaponCollision->SetCollisionProfileName("NoCollision");
-	}
 }
 
 void AEnemyBase::Execute_TakeDamage()
