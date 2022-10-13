@@ -40,6 +40,7 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	deltaTime = DeltaTime;
 	FirstBot = WeaponB->GetComponentLocation();
 	FirstTop = WeaponT->GetComponentLocation();
 	TraceWeapon();

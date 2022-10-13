@@ -28,7 +28,7 @@ class SOULSPROJECT_API APlayerCharacter : public ACharacter
 public:
 	//	Sets default values for this character's properties
 	APlayerCharacter();
-	
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Character Components")
 	UHealthComponent* HealthComponent;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category= "Character Components")
@@ -44,7 +44,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Character Components")
 	USceneComponent* WeaponT;
 protected:
-	
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	// Called every frame
@@ -125,7 +124,7 @@ private:
 	EAbilityState AbilityState = EAbilityState::GroundState;
 	EFocusState FocusState = EFocusState::FreeState;
 	bool bCanAttack = true;
-	FVector NextTop,FirstTop,NextBot,FirstBot;
+	FVector NextTop, FirstTop, NextBot, FirstBot;
 #pragma endregion
 
 #pragma region "Action Functions"
@@ -143,6 +142,7 @@ public:
 	bool bCanActiveTrace;
 private:
 	bool bWeaponOverlapped = false;
+	float deltaTime;
 
 #pragma endregion
 
@@ -167,6 +167,5 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* A;
 private:
-	
-#pragma endregion 
+#pragma endregion
 };
