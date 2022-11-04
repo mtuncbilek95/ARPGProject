@@ -23,5 +23,6 @@ class SOULSPROJECT_API IWeaponCollision
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 
-	virtual void ChangeCollision(bool changeValue) = 0;
+	virtual void TraceWeaponHit(bool traceHit) = 0;
+	
 };

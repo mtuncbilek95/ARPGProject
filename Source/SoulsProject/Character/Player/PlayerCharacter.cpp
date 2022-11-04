@@ -12,10 +12,12 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetStringLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "SoulsProject/Character/Effects/AttackCameraShake.h"
 #include "SoulsProject/Character/Interfaces/MontagePlayer.h"
 #include "SoulsProject/Enemy/Base/EnemyBase.h"
 
-// Sets default values
+#pragma region "Constructor"
+
 APlayerCharacter::APlayerCharacter()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -26,31 +28,28 @@ APlayerCharacter::APlayerCharacter()
 	SetupCharacter();
 	SetupWeapon();
 }
-
-
-
-// Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	HealthComponent->OnDamageTakenDelegate.AddDynamic(this, &APlayerCharacter::Execute_TakeDamage);
 }
-
-// Called every frame
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	deltaTime = DeltaTime;
-	FirstBot = WeaponB->GetComponentLocation();
-	FirstTop = WeaponT->GetComponentLocation();
+
+	FirstBot = WeaponSlot->GetSocketLocation("Weapon_Bot");
 	TraceWeapon();
-	NextBot = WeaponB->GetComponentLocation();
-	NextTop = WeaponT->GetComponentLocation();
+	NextTop = WeaponSlot->GetSocketLocation("Weapon_Top");
 }
+
+#pragma endregion 
+
+#pragma region "Initial Input Functions"
 
 void APlayerCharacter::Sprint(EExecuteBranch Branches)
 {
-	if(FocusState == EFocusState::FreeState)
+	if (FocusState == EFocusState::FreeState)
 	{
 		switch (Branches)
 		{
@@ -113,6 +112,10 @@ FVector APlayerCharacter::CalculateDirectionVector()
 	}
 }
 
+#pragma endregion 
+
+#pragma region "Target Locking System"
+
 void APlayerCharacter::HardLockTrace()
 {
 	FVector endPoint = sphereLength * SpringArm->GetTargetRotation().Vector() + GetActorLocation();
@@ -121,9 +124,9 @@ void APlayerCharacter::HardLockTrace()
 	Types.Add(EObjectTypeQuery::ObjectTypeQuery3);
 	IgnoreActors.Add(this);
 	EDrawDebugTrace::Type traceType = EDrawDebugTrace::ForOneFrame;
-	UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), GetActorLocation(), endPoint, sphereRadius, Types, false, IgnoreActors, traceType, LockHitResult, true);
+	UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), GetActorLocation(), endPoint, sphereRadius, Types, false, IgnoreActors, traceType,
+	                                                  LockHitResult, true);
 }
-
 void APlayerCharacter::SoftLockTrace()
 {
 	FVector endPoint = sphereLength * CalculateDirectionVector() + GetActorLocation();
@@ -132,10 +135,10 @@ void APlayerCharacter::SoftLockTrace()
 	Types.Add(EObjectTypeQuery::ObjectTypeQuery3);
 	IgnoreActors.Add(this);
 	EDrawDebugTrace::Type traceType = EDrawDebugTrace::ForOneFrame;
-	UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), GetActorLocation(), endPoint, 100, Types, false, IgnoreActors, traceType, LockHitResult, true);
+	UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), GetActorLocation(), endPoint, 100, Types, false, IgnoreActors, traceType, LockHitResult,
+	                                                  true);
 	UKismetSystemLibrary::DrawDebugArrow(GetWorld(), GetActorLocation(), endPoint, 10, FColor::Red, 0, 3);
 }
-
 void APlayerCharacter::HardLock()
 {
 	if (hitActor)
@@ -143,20 +146,20 @@ void APlayerCharacter::HardLock()
 		FRotator targetControlRotation = UKismetMathLibrary::FindLookAtRotation(
 			GetActorLocation(), FVector(hitActor->GetActorLocation().X, hitActor->GetActorLocation().Y + 60, hitActor->GetActorLocation().Z));
 		FRotator targetActorRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), hitActor->GetActorLocation());
-		GetController()->SetControlRotation(UKismetMathLibrary::RInterpTo(GetControlRotation(),targetControlRotation,GetWorld()->GetDeltaSeconds(),interpSpeed));
-		SetActorRotation(targetActorRotation,ETeleportType::ResetPhysics);
+		GetController()->SetControlRotation(UKismetMathLibrary::RInterpTo(GetControlRotation(), targetControlRotation, GetWorld()->GetDeltaSeconds(),
+		                                                                  interpSpeed));
+		SetActorRotation(targetActorRotation, ETeleportType::ResetPhysics);
 	}
 }
-
 void APlayerCharacter::LockOnTarget()
 {
-	if (!hitActor)
+	if (LockHitResult.GetActor())
 	{
 		HardLockTrace();
 		hitActor = Cast<AActor>(LockHitResult.GetActor());
 		GetWorldTimerManager().ClearTimer(LockTimerHandle);
 		GetWorldTimerManager().SetTimer(LockTimerHandle, this, &APlayerCharacter::HardLock, 0.001, true);
-		if(hitActor)
+		if (hitActor)
 			LockingProps(true);
 	}
 	else
@@ -165,71 +168,77 @@ void APlayerCharacter::LockOnTarget()
 		GetWorldTimerManager().ClearTimer(LockTimerHandle);
 		GetWorldTimerManager().SetTimer(LockTimerHandle, this, &APlayerCharacter::SoftLockTrace, 0.001, true);
 		LockingProps(false);
-		if(hitActor)
+		if (hitActor)
 			LockingProps(true);
 	}
 }
-
 void APlayerCharacter::LockingProps(bool bIsPlayerLocked)
 {
 	bIsPlayerLocked ? GetCharacterMovement()->bOrientRotationToMovement = false : GetCharacterMovement()->bOrientRotationToMovement = true;
 	bIsPlayerLocked ? SetFocusState(EFocusState::FocusState) : SetFocusState(EFocusState::FreeState);
 }
 
-void APlayerCharacter::WeaponHitOpponent(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+#pragma endregion 
+
+#pragma region "Combat Detection"
+
+void APlayerCharacter::WeaponHitOpponent(const FHitResult HitResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Player hit the Enemy"))
-	//TSubclassOf<UDamageType> dmgType;
-	AEnemyBase* Enemy = Cast<AEnemyBase>(OtherActor);
-	if(Enemy)
+	TSubclassOf<UDamageType> dmgType;
+	AEnemyBase* Enemy = Cast<AEnemyBase>(HitResult.GetActor());
+	if (Enemy && !bWeaponOverlapped)
 	{
-		/*UGameplayStatics::ApplyDamage(Enemy, FMath::RandRange(10, 15), GetController(), this, dmgType);
-		bWeaponOverlapped = true;*/
-		UE_LOG(LogTemp, Warning, TEXT("Player hit the Enemy"))
+		UGameplayStatics::ApplyDamage(Enemy, FMath::RandRange(10, 15), GetController(), this, dmgType);
+		bWeaponOverlapped = true;
+		TSubclassOf<UAttackCameraShake> Shake = UAttackCameraShake::StaticClass();
+		UGameplayStatics::GetPlayerCameraManager(GetWorld(),0)->StartCameraShake(Shake,1);
 	}
 }
 
 void APlayerCharacter::PlayerAttack(EAttackState playState)
 {
 	IMontagePlayer* Interface = Cast<IMontagePlayer>(GetMesh()->GetAnimInstance());
-	if(Interface && bCanAttack)
+	if (Interface && bCanAttack)
 	{
 		Interface->PlayMontage_Implementation(playState);
 	}
 }
 
+void APlayerCharacter::TraceWeaponHit(bool traceHit)
+{
+	bCanActiveTrace = traceHit;
+	if(!traceHit)
+		bWeaponOverlapped = traceHit;
+}
+
 void APlayerCharacter::TraceWeapon()
 {
 	FHitResult HitResult;
-	if(bCanActiveTrace)
+	if (bCanActiveTrace)
 	{
 		TArray<AActor*> ActorsToIgnore;
 		ActorsToIgnore.Add(this);
-		UKismetSystemLibrary::LineTraceSingle(GetWorld(), FirstBot, NextBot,ETraceTypeQuery::TraceTypeQuery3,false,ActorsToIgnore,EDrawDebugTrace::ForDuration,HitResult,true);
-		UKismetSystemLibrary::LineTraceSingle(GetWorld(), FirstTop, NextTop,ETraceTypeQuery::TraceTypeQuery3,false,ActorsToIgnore,EDrawDebugTrace::ForDuration,HitResult,true);
-		UKismetSystemLibrary::LineTraceSingle(GetWorld(),NextTop , FirstBot,ETraceTypeQuery::TraceTypeQuery3,false,ActorsToIgnore,EDrawDebugTrace::ForDuration,HitResult,true);
+		UKismetSystemLibrary::LineTraceSingle(GetWorld(), FirstBot, NextTop, ETraceTypeQuery::TraceTypeQuery2, false, ActorsToIgnore,
+											  EDrawDebugTrace::ForDuration, HitResult, true);
 	}
 
-	if(!bWeaponOverlapped)
-	{
-		TSubclassOf<UDamageType> dmgType;
-		UGameplayStatics::ApplyDamage(HitResult.GetActor(), FMath::RandRange(10, 15), GetController(), this, dmgType);
-		bWeaponOverlapped = true;
-	}
+	WeaponHitOpponent(HitResult);
 }
+
+#pragma endregion
+
+#pragma region "Get Damage Functions"
 
 void APlayerCharacter::Execute_TakeDamage()
 {
-	PlayAnimMontage(A);
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan,
-		("Player Health: " + UKismetStringLibrary::Conv_IntToString(HealthComponent->GetHealth())));
-
+	                                 ("Player Health: " + UKismetStringLibrary::Conv_IntToString(HealthComponent->GetHealth())));
 }
-
-
 void APlayerCharacter::GetHitByEnemy_Implementation()
 {
 }
+
+#pragma endregion 
 
 #pragma region "Getter & Setter"
 
@@ -242,16 +251,18 @@ void APlayerCharacter::SetLocomotionState(ELocomotionState stateValue) { Locomot
 void APlayerCharacter::SetActionState(EActionState stateValue) { ActionState = stateValue; }
 void APlayerCharacter::SetAbilityState(EAbilityState stateValue) { AbilityState = stateValue; }
 void APlayerCharacter::SetFocusState(EFocusState stateValue) { FocusState = stateValue; }
+void APlayerCharacter::SetCanAttack(bool attackValue) { bCanAttack = attackValue; }
 
 bool APlayerCharacter::GetCanAttack() { return bCanAttack; }
-void APlayerCharacter::SetCanAttack(bool attackValue) { bCanAttack = attackValue; }
 
 /* <---------Locomotion Values---------> */
 
 bool APlayerCharacter::GetIsFalling() { return GetCharacterMovement()->IsFalling(); }
 bool APlayerCharacter::GetHasMovementInput() { return (GetCharacterMovement()->GetCurrentAcceleration().Length() / GetCharacterMovement()->MaxAcceleration) > 0.0f; }
 bool APlayerCharacter::GetIsMoving() { return GetSpeed() > 1.0f; }
+
 float APlayerCharacter::GetSpeed() { return GetVelocity().Length(); }
+
 FRotator APlayerCharacter::GetAimingRotation() { return GetControlRotation(); }
 
 /* <---------Consturctor Setup---------> */
@@ -264,29 +275,28 @@ void APlayerCharacter::SetupSpringArm()
 	SpringArm->bUsePawnControlRotation = true;
 	SpringArm->TargetArmLength = 350;
 }
+
 void APlayerCharacter::SetupCamera()
 {
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
 	VisionPlane = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Visual Plane"));
 	VisionPlane->SetupAttachment(Camera);
-	VisionPlane->SetRelativeLocation(FVector(60,0,0));
-	VisionPlane->SetRelativeRotation(FRotator(0,90,-90));
+	VisionPlane->SetRelativeLocation(FVector(60, 0, 0));
+	VisionPlane->SetRelativeRotation(FRotator(0, 90, -90));
 }
+
 void APlayerCharacter::SetupWeapon()
 {
 	WeaponSlot = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Weapon"));
 	WeaponSlot->SetupAttachment(GetMesh(), "hand_rSocket");
-	WeaponB = CreateDefaultSubobject<USceneComponent>(TEXT("WeaponBottom"));
-	WeaponB->SetupAttachment(WeaponSlot, "WeaponRoot");
-	WeaponT = CreateDefaultSubobject<USceneComponent>(TEXT("WeaponTop"));
-	WeaponT->SetupAttachment(WeaponSlot, "WeaponTop");
 }
+
 void APlayerCharacter::SetupCharacter()
 {
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health Component"));
 	HealthComponent->RegisterComponent();
-	
+
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
 	GetCharacterMovement()->bOrientRotationToMovement = true;
@@ -294,6 +304,4 @@ void APlayerCharacter::SetupCharacter()
 	bUseControllerRotationYaw = false;
 }
 
-#pragma endregion 
-
-
+#pragma endregion

@@ -73,20 +73,16 @@ private:
 	ELocomotionState LocomotionState;
 	EActionState ActionState = EActionState::ParkourMode;
 	EAbilityState AbilityState = EAbilityState::GroundState;
-
 #pragma endregion
 
 #pragma region "Locomotion Functions"
 
 public:
-	UFUNCTION(BlueprintNativeEvent, Category= "Action Functions")
-	void GetHitByPlayer();
-
 	float GetSpeed() { return GetVelocity().Length(); }
 	FRotator GetAimingRotation() { return GetControlRotation(); }
 	bool GetIsFalling() { return GetCharacterMovement()->IsFalling(); }
 	bool GetIsMoving() { return GetSpeed() > 1.0f; }
-private:
+
 #pragma endregion
 
 #pragma region "Action Functions"
@@ -97,7 +93,6 @@ public:
 
 	int debugNumber = 0;
 #pragma endregion
-
 	
 #pragma region "Life Functions"
 

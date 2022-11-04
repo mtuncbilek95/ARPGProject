@@ -69,7 +69,3 @@ void AEnemyBase::AttackTheOpponent(UAnimMontage* AnimMontage, float& length)
 	PlayAnimMontage(AnimMontage);
 	length = AnimMontage->GetPlayLength();
 }
-
-void AEnemyBase::GetHitByPlayer_Implementation()
-{
-}

@@ -15,11 +15,12 @@
 
 //	Movement States Enum Classes
 #include "SoulsProject/Character/Components/HealthComponent.h"
+#include "SoulsProject/Character/Interfaces/WeaponCollision.h"
 #include "SoulsProject/Character/States/MotionStates.h"
 #include "PlayerCharacter.generated.h"
 
 UCLASS()
-class SOULSPROJECT_API APlayerCharacter : public ACharacter
+class SOULSPROJECT_API APlayerCharacter : public ACharacter, public IWeaponCollision
 {
 	GENERATED_BODY()
 
@@ -39,10 +40,7 @@ public:
 	UStaticMeshComponent* VisionPlane;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Character Components")
 	UStaticMeshComponent* WeaponSlot;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Character Components")
-	USceneComponent* WeaponB;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Character Components")
-	USceneComponent* WeaponT;
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -124,7 +122,7 @@ private:
 	EAbilityState AbilityState = EAbilityState::GroundState;
 	EFocusState FocusState = EFocusState::FreeState;
 	bool bCanAttack = true;
-	FVector NextTop, FirstTop, NextBot, FirstBot;
+
 #pragma endregion
 
 #pragma region "Action Functions"
@@ -133,17 +131,19 @@ public:
 	UFUNCTION(BlueprintNativeEvent, Category= "Action Functions")
 	void GetHitByEnemy();
 	UFUNCTION(Category= "Overlap Component")
-	void WeaponHitOpponent(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
-	                       bool bFromSweep, const FHitResult& SweepResult);
+	void WeaponHitOpponent(const FHitResult HitResult);
 	UFUNCTION(BlueprintCallable, Category=" Action Functions")
 	void PlayerAttack(EAttackState playState);
 
+	virtual void TraceWeaponHit(bool traceHit) override;
+	
 	void TraceWeapon();
 	bool bCanActiveTrace;
-private:
 	bool bWeaponOverlapped = false;
+	void EndHitStop();
+private:
 	float deltaTime;
-
+	FVector NextTop, FirstTop, NextBot, FirstBot;
 #pragma endregion
 
 #pragma region "Locomotion Functions"
@@ -163,9 +163,8 @@ public:
 public:
 	UFUNCTION()
 	void Execute_TakeDamage();
-
-	UPROPERTY(EditDefaultsOnly)
-	UAnimMontage* A;
+	
 private:
 #pragma endregion
+	
 };
