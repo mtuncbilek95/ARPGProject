@@ -22,6 +22,7 @@
 UCLASS()
 class SOULSPROJECT_API APlayerCharacter : public ACharacter, public IWeaponCollision
 {
+private:
 	GENERATED_BODY()
 
 #pragma region "Main Component"
@@ -135,12 +136,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category=" Action Functions")
 	void PlayerAttack(EAttackState playState);
 
-	virtual void TraceWeaponHit(bool traceHit) override;
+	virtual void TraceWeaponHit() override;
+	virtual void TopLine() override;
+	virtual void BottomLine() override;
+	virtual void EndWeaponCollision() override;
 	
-	void TraceWeapon();
-	bool bCanActiveTrace;
 	bool bWeaponOverlapped = false;
-	void EndHitStop();
+	
 private:
 	float deltaTime;
 	FVector NextTop, FirstTop, NextBot, FirstBot;

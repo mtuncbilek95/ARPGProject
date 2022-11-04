@@ -9,8 +9,9 @@ void UNS_TraceTracker::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequen
 {
 	Super::NotifyBegin(MeshComp, Animation, TotalDuration, EventReference);
 	IWeaponCollision* Interface = Cast<IWeaponCollision>(MeshComp->GetOwner());
-	if(Interface)
-		Interface->TraceWeaponHit(true);
+	if (Interface)
+		Interface->TopLine();
+		
 }
 
 void UNS_TraceTracker::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
@@ -18,12 +19,14 @@ void UNS_TraceTracker::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequence
 	Super::NotifyEnd(MeshComp, Animation, EventReference);
 	IWeaponCollision* Interface = Cast<IWeaponCollision>(MeshComp->GetOwner());
 	if(Interface)
-		Interface->TraceWeaponHit(false);
-		
+		Interface->EndWeaponCollision();
 }
 
 void UNS_TraceTracker::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float FrameDeltaTime,
-	const FAnimNotifyEventReference& EventReference)
+                                  const FAnimNotifyEventReference& EventReference)
 {
 	Super::NotifyTick(MeshComp, Animation, FrameDeltaTime, EventReference);
+	IWeaponCollision* Interface = Cast<IWeaponCollision>(MeshComp->GetOwner());
+	if (Interface)
+		Interface->TraceWeaponHit();
 }

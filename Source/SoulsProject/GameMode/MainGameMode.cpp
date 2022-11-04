@@ -5,10 +5,13 @@
 
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetStringLibrary.h"
+#include "SoulsProject/Character/HUD/BaseHUD.h"
 
 AMainGameMode::AMainGameMode()
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	HUDClass = ABaseHUD::StaticClass();
 }
 
 void AMainGameMode::BeginPlay()

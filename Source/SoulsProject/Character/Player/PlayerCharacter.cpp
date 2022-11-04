@@ -28,22 +28,20 @@ APlayerCharacter::APlayerCharacter()
 	SetupCharacter();
 	SetupWeapon();
 }
+
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	HealthComponent->OnDamageTakenDelegate.AddDynamic(this, &APlayerCharacter::Execute_TakeDamage);
 }
+
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	deltaTime = DeltaTime;
-
-	FirstBot = WeaponSlot->GetSocketLocation("Weapon_Bot");
-	TraceWeapon();
-	NextTop = WeaponSlot->GetSocketLocation("Weapon_Top");
 }
 
-#pragma endregion 
+#pragma endregion
 
 #pragma region "Initial Input Functions"
 
@@ -66,6 +64,7 @@ void APlayerCharacter::Sprint(EExecuteBranch Branches)
 		}
 	}
 }
+
 void APlayerCharacter::Walk(EExecuteBranch Branches)
 {
 	switch (Branches)
@@ -91,14 +90,16 @@ void APlayerCharacter::MoveCharacter(float forwardInput, float rightInput)
 	AddMovementInput(UKismetMathLibrary::GetForwardVector(directionRotation), forwardInput);
 	AddMovementInput(UKismetMathLibrary::GetRightVector(directionRotation), rightInput);
 }
+
 void APlayerCharacter::RotateCharacter(float axisTurn, float axisLook)
 {
 	if (!hitActor)
 	{
-		AddControllerYawInput(axisTurn);
 		AddControllerPitchInput(axisLook);
+		AddControllerYawInput(axisTurn);
 	}
 }
+
 FVector APlayerCharacter::CalculateDirectionVector()
 {
 	if (FMath::Abs(GetInputAxisValue("FB")) + FMath::Abs(GetInputAxisValue("LR")) > 0)
@@ -112,7 +113,7 @@ FVector APlayerCharacter::CalculateDirectionVector()
 	}
 }
 
-#pragma endregion 
+#pragma endregion
 
 #pragma region "Target Locking System"
 
@@ -127,6 +128,7 @@ void APlayerCharacter::HardLockTrace()
 	UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), GetActorLocation(), endPoint, sphereRadius, Types, false, IgnoreActors, traceType,
 	                                                  LockHitResult, true);
 }
+
 void APlayerCharacter::SoftLockTrace()
 {
 	FVector endPoint = sphereLength * CalculateDirectionVector() + GetActorLocation();
@@ -135,10 +137,12 @@ void APlayerCharacter::SoftLockTrace()
 	Types.Add(EObjectTypeQuery::ObjectTypeQuery3);
 	IgnoreActors.Add(this);
 	EDrawDebugTrace::Type traceType = EDrawDebugTrace::ForOneFrame;
-	UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), GetActorLocation(), endPoint, 100, Types, false, IgnoreActors, traceType, LockHitResult,
+	UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), GetActorLocation(), endPoint, 100, Types, false, IgnoreActors, traceType,
+	                                                  LockHitResult,
 	                                                  true);
 	UKismetSystemLibrary::DrawDebugArrow(GetWorld(), GetActorLocation(), endPoint, 10, FColor::Red, 0, 3);
 }
+
 void APlayerCharacter::HardLock()
 {
 	if (hitActor)
@@ -151,34 +155,40 @@ void APlayerCharacter::HardLock()
 		SetActorRotation(targetActorRotation, ETeleportType::ResetPhysics);
 	}
 }
+
 void APlayerCharacter::LockOnTarget()
 {
-	if (LockHitResult.GetActor())
+	if (!hitActor && LockHitResult.GetActor())
 	{
 		HardLockTrace();
 		hitActor = Cast<AActor>(LockHitResult.GetActor());
 		GetWorldTimerManager().ClearTimer(LockTimerHandle);
 		GetWorldTimerManager().SetTimer(LockTimerHandle, this, &APlayerCharacter::HardLock, 0.001, true);
-		if (hitActor)
-			LockingProps(true);
+		hitActor ? LockingProps(true) : LockingProps(false);
+	}
+	else if (!hitActor && !LockHitResult.GetActor())
+	{
+		hitActor = NULL;
+		GetWorldTimerManager().ClearTimer(LockTimerHandle);
+		GetWorldTimerManager().SetTimer(LockTimerHandle, this, &APlayerCharacter::SoftLockTrace, 0.001, true);
+		hitActor ? LockingProps(true) : LockingProps(false);
 	}
 	else
 	{
 		hitActor = NULL;
 		GetWorldTimerManager().ClearTimer(LockTimerHandle);
 		GetWorldTimerManager().SetTimer(LockTimerHandle, this, &APlayerCharacter::SoftLockTrace, 0.001, true);
-		LockingProps(false);
-		if (hitActor)
-			LockingProps(true);
+		hitActor ? LockingProps(true) : LockingProps(false);
 	}
 }
+
 void APlayerCharacter::LockingProps(bool bIsPlayerLocked)
 {
 	bIsPlayerLocked ? GetCharacterMovement()->bOrientRotationToMovement = false : GetCharacterMovement()->bOrientRotationToMovement = true;
 	bIsPlayerLocked ? SetFocusState(EFocusState::FocusState) : SetFocusState(EFocusState::FreeState);
 }
 
-#pragma endregion 
+#pragma endregion
 
 #pragma region "Combat Detection"
 
@@ -189,9 +199,9 @@ void APlayerCharacter::WeaponHitOpponent(const FHitResult HitResult)
 	if (Enemy && !bWeaponOverlapped)
 	{
 		UGameplayStatics::ApplyDamage(Enemy, FMath::RandRange(10, 15), GetController(), this, dmgType);
-		bWeaponOverlapped = true;
 		TSubclassOf<UAttackCameraShake> Shake = UAttackCameraShake::StaticClass();
-		UGameplayStatics::GetPlayerCameraManager(GetWorld(),0)->StartCameraShake(Shake,1);
+		UGameplayStatics::GetPlayerCameraManager(this, 0)->StartCameraShake(Shake);
+		bWeaponOverlapped = true;
 	}
 }
 
@@ -204,25 +214,31 @@ void APlayerCharacter::PlayerAttack(EAttackState playState)
 	}
 }
 
-void APlayerCharacter::TraceWeaponHit(bool traceHit)
+void APlayerCharacter::TraceWeaponHit()
 {
-	bCanActiveTrace = traceHit;
-	if(!traceHit)
-		bWeaponOverlapped = traceHit;
+	BottomLine();
+	FHitResult HitResult;
+	TArray<AActor*> ActorsToIgnore;
+	ActorsToIgnore.Add(this);
+	UKismetSystemLibrary::LineTraceSingle(GetWorld(), FirstBot, NextTop, ETraceTypeQuery::TraceTypeQuery2, false, ActorsToIgnore,
+	                                      EDrawDebugTrace::None, HitResult, true);
+	WeaponHitOpponent(HitResult);
+	TopLine();
 }
 
-void APlayerCharacter::TraceWeapon()
+void APlayerCharacter::TopLine()
 {
-	FHitResult HitResult;
-	if (bCanActiveTrace)
-	{
-		TArray<AActor*> ActorsToIgnore;
-		ActorsToIgnore.Add(this);
-		UKismetSystemLibrary::LineTraceSingle(GetWorld(), FirstBot, NextTop, ETraceTypeQuery::TraceTypeQuery2, false, ActorsToIgnore,
-											  EDrawDebugTrace::ForDuration, HitResult, true);
-	}
+	NextTop = WeaponSlot->GetSocketLocation("Weapon_Top");
+}
 
-	WeaponHitOpponent(HitResult);
+void APlayerCharacter::BottomLine()
+{
+	FirstBot = WeaponSlot->GetSocketLocation("Weapon_Bot");
+}
+
+void APlayerCharacter::EndWeaponCollision()
+{
+	bWeaponOverlapped = false;
 }
 
 #pragma endregion
@@ -234,11 +250,12 @@ void APlayerCharacter::Execute_TakeDamage()
 	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan,
 	                                 ("Player Health: " + UKismetStringLibrary::Conv_IntToString(HealthComponent->GetHealth())));
 }
+
 void APlayerCharacter::GetHitByEnemy_Implementation()
 {
 }
 
-#pragma endregion 
+#pragma endregion
 
 #pragma region "Getter & Setter"
 
@@ -258,7 +275,12 @@ bool APlayerCharacter::GetCanAttack() { return bCanAttack; }
 /* <---------Locomotion Values---------> */
 
 bool APlayerCharacter::GetIsFalling() { return GetCharacterMovement()->IsFalling(); }
-bool APlayerCharacter::GetHasMovementInput() { return (GetCharacterMovement()->GetCurrentAcceleration().Length() / GetCharacterMovement()->MaxAcceleration) > 0.0f; }
+
+bool APlayerCharacter::GetHasMovementInput()
+{
+	return (GetCharacterMovement()->GetCurrentAcceleration().Length() / GetCharacterMovement()->MaxAcceleration) > 0.0f;
+}
+
 bool APlayerCharacter::GetIsMoving() { return GetSpeed() > 1.0f; }
 
 float APlayerCharacter::GetSpeed() { return GetVelocity().Length(); }

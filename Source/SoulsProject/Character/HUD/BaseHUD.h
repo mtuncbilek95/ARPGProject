@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/HUD.h"
+#include "SoulsProject/Character/Widgets/CharacterMainWidget.h"
 #include "BaseHUD.generated.h"
 
 /**
@@ -15,4 +16,7 @@ class SOULSPROJECT_API ABaseHUD : public AHUD
 	GENERATED_BODY()
 	
 	ABaseHUD();
+
+	virtual void DrawHUD() override;
+	
 };
