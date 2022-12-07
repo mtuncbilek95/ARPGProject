@@ -30,6 +30,7 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	{
 		SetEssentialData();
 		DetermineLocomotion();
+		FColor::Red
 	}
 }
 

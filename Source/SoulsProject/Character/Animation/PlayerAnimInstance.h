@@ -23,6 +23,7 @@ protected:
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
+
 #pragma region "Interface Functions"
 
 public:
@@ -78,7 +79,6 @@ private:
 	float currentSpeed, maxSpeed, currentAcceleration, maxAcceleration;
 	float inputLR, inputFB;
 	float deltaTimeX, aimYawRate;
-
 	FRotator aimingRotation;
 	
 #pragma endregion
